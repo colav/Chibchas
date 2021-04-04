@@ -8,6 +8,31 @@ Package allows to download data from intitulac and upload it to googdrive to do 
 
 # Installation
 
+## Configure Google Drive Api
+https://developers.google.com/drive/api/v3/enable-drive-api
+
+download the json file with configuration
+![JSON Api Config](img/apijson.png?raw=true "Download json with credentials")
+
+
+## RClone
+required administrative permissions with apt.
+
+`apt install rclone`
+
+
+configure rclone following [this instructions](https://rclone.org/drive/) 
+
+client_id and client_secret can be found on the json previously downloaded.
+
+Mount the filesystem, it doesn't required administrative permissions.
+
+`
+ rclone mount -v  --daemon remote:project/path  local/path
+`
+
+
+
 ## Package
 `pip install chibchas`
 
