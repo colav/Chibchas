@@ -1,0 +1,7 @@
+import argparse
+from tools import input, getpass, main
+
+if __name__=='__main__':
+    user=input('usuario: ')
+    password=getpass.getpass('Contraseña: ')
+    main(user,password)

@@ -2,23 +2,23 @@ from flask import Flask, render_template, flash, request
 from wtforms import Form, TextField, validators
 from flask_bootstrap import Bootstrap
 import pathlib
+from chibchas.tools import main
+import uuid
 
 # App config.
 DEBUG = True
 app = Flask(__name__, template_folder=str(
     pathlib.Path(__file__).parent.absolute()) + '/templates/')
 app.config.from_object(__name__)
-app.config['SECRET_KEY'] = '7d441f27d441f27567d441f2b6176a'
+app.config['SECRET_KEY'] = str(uuid.uuid1())
 
 Bootstrap(app)
 
-
+gdrive_path = "/tmp/institulac"
 class WebForm(Form):
     name = TextField('Usuario:', validators=[validators.required()])
     password = TextField('Contraseña:', validators=[
                          validators.required(), validators.Length(min=3, max=35)])
-    apikey = TextField('Apikey:', validators=[
-                       validators.required(), validators.Length(min=3, max=35)])
 
 
 @app.route("/", methods=['GET', 'POST'])
@@ -27,11 +27,10 @@ def login():
 
     print(form.errors)
     if request.method == 'POST':
-        name = request.form['name']
+        username = request.form['username']
         password = request.form['password']
-        apikey = request.form['apikey']
-        print(name, " ", apikey, " ", password)
-
+        print(username, " ", password)
+        main(username,password,gdrive_path)
     if form.validate():
         # Save the comment here.
         flash('Thanks for registration ' + name)
@@ -41,5 +40,7 @@ def login():
     return render_template('login.html', form=form)
 
 
-def run_server():  # to do ip and port
-    app.run()
+def run_server(ip,port,gdrive_path_):  # to do ip and port
+    global gdrive_path
+    gdrive_path = gdrive_path_
+    app.run(host=ip,port=port)
