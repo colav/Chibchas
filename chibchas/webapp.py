@@ -4,6 +4,8 @@ from flask_bootstrap import Bootstrap
 import pathlib
 from chibchas.tools import main
 import uuid
+import tempfile
+import shutil 
 
 # App config.
 DEBUG = True
@@ -14,7 +16,8 @@ app.config['SECRET_KEY'] = str(uuid.uuid1())
 
 Bootstrap(app)
 
-gdrive_path = "/tmp/institulac"
+gdrive_path = ""
+
 class WebForm(Form):
     name = TextField('Usuario:', validators=[validators.required()])
     password = TextField('Contraseña:', validators=[
@@ -30,7 +33,12 @@ def login():
         username = request.form['username']
         password = request.form['password']
         print(username, " ", password)
-        main(username,password,gdrive_path)
+
+        tmp_path = tempfile.mkdtemp()
+        print("Saving data on temporal folder")
+        main(username,password,tmp_path)
+        shutil.copytree(tmp_path, gdrive_path,dirs_exist_ok=True) 
+
     if form.validate():
         # Save the comment here.
         flash('Thanks for registration ' + name)
