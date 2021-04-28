@@ -81,7 +81,13 @@ def main():
         # Dependent packages (distributions)
         install_requires=[
             'flask-wtf',
-            'Flask-Bootstrap'
+            'Flask-Bootstrap',
+            'html5lib',
+            'pandas',
+            'helium',
+            'xlsxwriter',
+            'lxml',
+            'bs4'
         ],
     )
 
