@@ -1,4 +1,4 @@
-from flask import Flask, render_template, flash, request
+from flask import Flask, render_template, flash, request, session, url_for, redirect
 from wtforms import Form, TextField, validators
 from flask_bootstrap import Bootstrap
 import pathlib
@@ -25,7 +25,7 @@ class WebForm(Form):
 
 
 @app.route("/", methods=['GET', 'POST'])
-def login():
+def index():
     form = WebForm(request.form)
 
     print(form.errors)
@@ -34,10 +34,12 @@ def login():
         password = request.form['password']
         print(username, " ", password)
 
-        tmp_path = tempfile.mkdtemp()
-        print("Saving data on temporal folder")
-        main(username,password,tmp_path)
-        shutil.copytree(tmp_path, gdrive_path,dirs_exist_ok=True) 
+        session.clear()
+        session['username'] = username
+        session['password'] = password
+        return redirect(url_for('processing'))
+        #main(username,password,tmp_path)
+        #shutil.copytree(tmp_path, gdrive_path,dirs_exist_ok=True) 
 
     if form.validate():
         # Save the comment here.
@@ -46,6 +48,26 @@ def login():
         flash('Error: All the form fields are required. ')
 
     return render_template('login.html', form=form)
+
+
+@app.route("/processing", methods=['GET', 'POST'])
+def processing():
+    if not "username" in session.keys() and not "password" in session.keys() :
+        return redirect(url_for('index'))
+    return render_template('processing.html')
+
+@app.route("/executor", methods=['GET', 'POST'])
+def executor():
+    if not "username" in session.keys() and not "password" in session.keys() :
+        return redirect(url_for('index'))
+    print(session)
+    username = session['username'] 
+    password = session['password']
+    tmp_path = tempfile.mkdtemp()
+    print("Saving data on temporal folder {}".format(tmp_path))
+    main(username,password,tmp_path)
+    shutil.copytree(tmp_path, gdrive_path,dirs_exist_ok=True) 
+    return redirect(url_for('index'))
 
 
 def run_server(ip,port,gdrive_path_):  # to do ip and port
