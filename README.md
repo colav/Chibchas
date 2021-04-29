@@ -9,7 +9,8 @@ Package allows to download data from intitulac and upload it to googdrive to do 
 # Installation
 
 ## Configure Google Drive Api
-https://developers.google.com/drive/api/v3/enable-drive-api
+Create a project https://developers.google.com/workspace/guides/create-project
+create a oauth credentials https://developers.google.com/drive/api/v3/enable-drive-api
 
 download the json file with configuration
 ![JSON Api Config](img/apijson.png?raw=true "Download json with credentials")
