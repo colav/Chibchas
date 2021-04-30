@@ -90,7 +90,8 @@ def main():
             'xlsxwriter',
             'lxml',
             'bs4',
-            'xlrd'
+            'xlrd',
+            'openpyxl'
         ],
     )
 
