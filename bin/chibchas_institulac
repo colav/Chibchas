@@ -1,7 +1,19 @@
+#!/usr/bin/env python3
 import argparse
-from tools import input, getpass, main
+from tools import main, getpass, time
+__file__='.........'
 
 if __name__=='__main__':
-    user=input('usuario: ')
-    password=getpass.getpass('Contraseña: ')
-    main(user,password)
+    user='annyarango'#input('usuario: ')
+    password='1@Silver'#getpass.getpass('Contraseña: ')
+    
+    TRYMAX=10
+    for n in range(TRYMAX):
+        try:
+            #Set end=None to reach the last element
+            main(user,password,DIR='InstituLAC',CHECKPOINT=True,headless=True,start=0,end=1,start_time=time.time())
+            break
+        except (LookupError,) as e:
+            print('='*80)
+            print(f'try {n}/{TRYMAX}')
+            print('='*80)
