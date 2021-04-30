@@ -5,7 +5,7 @@ import pathlib
 from chibchas.tools import main
 import uuid
 import tempfile
-import shutil 
+import shutil
 
 # App config.
 DEBUG = True
@@ -17,6 +17,7 @@ app.config['SECRET_KEY'] = str(uuid.uuid1())
 Bootstrap(app)
 
 gdrive_path = ""
+
 
 class WebForm(Form):
     name = TextField('Usuario:', validators=[validators.required()])
@@ -32,18 +33,16 @@ def index():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        print(username, " ", password)
+        print("user logged in")
 
         session.clear()
         session['username'] = username
         session['password'] = password
         return redirect(url_for('processing'))
-        #main(username,password,tmp_path)
-        #shutil.copytree(tmp_path, gdrive_path,dirs_exist_ok=True) 
 
     if form.validate():
         # Save the comment here.
-        flash('Thanks for registration ' + name)
+        flash('Thanks for logging in ' + username)
     else:
         flash('Error: All the form fields are required. ')
 
@@ -52,25 +51,26 @@ def index():
 
 @app.route("/processing", methods=['GET', 'POST'])
 def processing():
-    if not "username" in session.keys() and not "password" in session.keys() :
+    if "username" not in session.keys() and "password" not in session.keys():
         return redirect(url_for('index'))
     return render_template('processing.html')
 
+
 @app.route("/executor", methods=['GET', 'POST'])
 def executor():
-    if not "username" in session.keys() and not "password" in session.keys() :
+    if "username" not in session.keys() and "password" not in session.keys():
         return redirect(url_for('index'))
     print(session)
-    username = session['username'] 
+    username = session['username']
     password = session['password']
     tmp_path = tempfile.mkdtemp()
     print("Saving data on temporal folder {}".format(tmp_path))
-    main(username,password,tmp_path)
-    shutil.copytree(tmp_path, gdrive_path,dirs_exist_ok=True) 
+    main(username, password, tmp_path)
+    shutil.copytree(tmp_path, gdrive_path, dirs_exist_ok=True)
     return redirect(url_for('index'))
 
 
-def run_server(ip,port,gdrive_path_):  # to do ip and port
+def run_server(ip, port, gdrive_path_):  # to do ip and port
     global gdrive_path
     gdrive_path = gdrive_path_
-    app.run(host=ip,port=port)
+    app.run(host=ip, port=port)
