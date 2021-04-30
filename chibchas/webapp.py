@@ -64,7 +64,7 @@ def executor():
     print(session)
     username = session['username']
     password = session['password']
-    tmp_path = tempfile.gettempdir() + "/" + username
+    tmp_path = tempfile.gettempdir() + "/chibchas/" + username
     print("Saving data on temporal folder {}".format(tmp_path))
     max_tries = 10
     for n in range(max_tries):

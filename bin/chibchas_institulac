@@ -20,7 +20,7 @@ if __name__=='__main__':
     user=input('Usuario: ')
     password=getpass.getpass('Contraseña: ')
     print(user," ",password)
-    tmp_path = tempfile.gettempdir()+"/"+user
+    tmp_path = tempfile.gettempdir()+"/chibchas/"+user
     print("Saving data on temporal folder {}".format(tmp_path))
     max_tries=args.max_tries
     for n in range(max_tries):
