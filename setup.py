@@ -54,7 +54,7 @@ def main():
         name="Chibchas",
 
         # Version number (initial):
-        version="0.0.1-alpha",
+        version="0.1.3",
 
         # Application author details:
         author="Colav",
@@ -84,6 +84,7 @@ def main():
             'Flask-Bootstrap',
             'html5lib',
             'pandas',
+            'numpy',
             'helium',
             'xlsxwriter',
             'lxml',
