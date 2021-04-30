@@ -64,18 +64,19 @@ def executor():
     print(session)
     username = session['username']
     password = session['password']
-    tmp_path = tempfile.gettempdir()+"/"+username
+    tmp_path = tempfile.gettempdir() + "/" + username
     print("Saving data on temporal folder {}".format(tmp_path))
+    max_tries = 10
     for n in range(max_tries):
-    try:
-        main(username, password, tmp_path)
-    except:
-        print("Unexpected error:", sys.exc_info()[0])
-        print('='*80)
-        print(f'try {n}/{max_tries}')
-        print('='*80)
+        try:
+            main(username, password, tmp_path)
+            shutil.copytree(tmp_path, gdrive_path, dirs_exist_ok=True)
+        except Exception as e:
+            print("Unexpected error:", sys.exc_info()[0], " ", e)
+            print('=' * 80)
+            print(f'try {n}/{max_tries}')
+            print('=' * 80)
 
-    shutil.copytree(tmp_path, gdrive_path, dirs_exist_ok=True)
     return redirect(url_for('index'))
 
 
