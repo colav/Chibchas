@@ -4,10 +4,9 @@
 InstituLAC Automation Tools
 
 # Description
-Package allows to download data from intitulac and upload it to googdrive to do validation
+Package allows to download data from InstituLAC/Minciencias (Colombia) and upload it to Google Drive to do validation
 
 # Installation
-
 
 ## Package
 `pip install chibchas`
@@ -23,20 +22,19 @@ Or using some command line options
 chibchas_server --port 8080 --ip x.x.x.x
 ```
 
-where x.x.x.x is your local ip
+where `x.x.x.x` is your local IP
 
-you can access to the server for the endpoints for example on: http://127.0.1.1:9999
-
-if depends of the ip and port that you are providen to chibchas.
+you can access to the server for the endpoints for example on: http://127.0.1.1:8080
+depending on the IP and PORT that you are providing to `chibchas`.
 
 ## Console
 To obtain the information of the first two groups and save the output files in `/home/usario/somedir`, use
 ```bash
 chibchas_institulac --gdrive_path=/home/restrepo/tmp  --end=2
 ```
-check `chibchas_institulac --help` for further options
+or check `chibchas_institulac --help` for further options. The default `--end` option, save output files for all the avalaible "Avalados" groups.
 
-The `--gdrive_path` can be a Google Drive folder. See below.
+The `--gdrive_path` can be a Google Drive folder. See below:
 
 ## Configure Google Drive Api
 Create a project https://developers.google.com/workspace/guides/create-project
