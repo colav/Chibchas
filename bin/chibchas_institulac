@@ -25,6 +25,7 @@ args = parser.parse_args()
 if __name__=='__main__':
     user=input('Usuario: ')
     password=getpass.getpass('Contraseña: ')
+
     if args.debug:
         print(user," ",password)
     tmp_path = tempfile.gettempdir()+"/chibchas/"+user
@@ -33,7 +34,10 @@ if __name__=='__main__':
     for n in range(max_tries):
         try:
             #Set end=None to reach the last element
-            main(user,password,DIR=tmp_path,CHECKPOINT=True,headless=args.headless,start=args.start,end=args.end,start_time=time.time())
+            LOGIN = main(user,password,DIR=tmp_path,CHECKPOINT=True,headless=args.headless,start=args.start,end=args.end,start_time=time.time())
+            if not LOGIN:
+                break
+            
             shutil.copytree(tmp_path, args.gdrive_path, dirs_exist_ok=True)
             break
         except:
