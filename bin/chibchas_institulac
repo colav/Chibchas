@@ -25,7 +25,6 @@ args = parser.parse_args()
 if __name__=='__main__':
     user=input('Usuario: ')
     password=getpass.getpass('Contraseña: ')
-
     if args.debug:
         print(user," ",password)
     tmp_path = tempfile.gettempdir()+"/chibchas/"+user
@@ -37,8 +36,14 @@ if __name__=='__main__':
             LOGIN = main(user,password,DIR=tmp_path,CHECKPOINT=True,headless=args.headless,start=args.start,end=args.end,start_time=time.time())
             if not LOGIN:
                 break
-            
-            shutil.copytree(tmp_path, args.gdrive_path, dirs_exist_ok=True)
+            for i in range(max_tries):
+                try:
+                    shutil.copytree(tmp_path, args.gdrive_path, dirs_exist_ok=True)
+                    shutil.rmtree(tmp_path)
+                    break
+                except Exception as e:
+                    time.sleep(5)
+                    print("Unexpected error:", sys.exc_info()[0], " ", e)
             break
         except:
             print("Unexpected error:", sys.exc_info()[0])

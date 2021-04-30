@@ -7,6 +7,7 @@ import uuid
 import tempfile
 import shutil
 import sys
+import time
 
 # App config.
 DEBUG = True
@@ -69,8 +70,19 @@ def executor():
     max_tries = 10
     for n in range(max_tries):
         try:
-            main(username, password, tmp_path)
-            shutil.copytree(tmp_path, gdrive_path, dirs_exist_ok=True)
+            LOGIN = main(username, password, tmp_path, end = 2)
+            if not LOGIN:
+                break
+            
+            for i in range(max_tries):
+                try:
+                    shutil.copytree(tmp_path, gdrive_path, dirs_exist_ok=True)
+                    shutil.rmtree(tmp_path)
+                    break
+                except Exception as e:
+                    time.sleep(5)
+                    print("Unexpected error:", sys.exc_info()[0], " ", e)
+            break
         except Exception as e:
             print("Unexpected error:", sys.exc_info()[0], " ", e)
             print('=' * 80)
