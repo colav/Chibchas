@@ -89,7 +89,8 @@ def main():
             'helium',
             'xlsxwriter',
             'lxml',
-            'bs4'
+            'bs4',
+            'xlrd'
         ],
     )
 
