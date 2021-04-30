@@ -647,6 +647,7 @@ def get_DB(browser, DB=[], dfg=pd.DataFrame(), sleep=0.8,
     assert dfg.shape[0] == 324
     # DICT CAT-PRODS-TAB
     dict_tables_path = str(pathlib.Path(__file__).parent.absolute()) + '/dict_tables.json'
+    print("JSON PATH {}".format(dict_tables_path))
     with open(dict_tables_path) as file_json:
         dict_tables = json.loads(file_json.read())
     # with open('dict_tables.json') as file_json:
