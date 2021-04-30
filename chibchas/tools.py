@@ -10,7 +10,7 @@ import json
 import pandas as pd
 import helium as h
 from selenium.common.exceptions import NoSuchElementException
-
+import pathlib
 
 pd.set_option("max_rows", 100)
 # pd.set_option("display.max_columns",100)
@@ -352,7 +352,7 @@ def format_info(df, writer, sheet_name):
     worksheet.set_column('A:A', 15)
     worksheet.set_column('B:B', 15)
 
-    logo_path = __file__[0:len(__file__) - 8] + '/templates/img/logo.jpeg'
+    logo_path = str(pathlib.Path(__file__).parent.absolute()) + '/templates/img/logo.jpeg'
     worksheet.insert_image('A1', logo_path)
 
     # title 1 UNIVERSIDAD DE ANTIOQUIA
@@ -456,7 +456,7 @@ def format_ptt(workbook):
     # https://xlsxwriter.readthedocs.io/example_images.html
     worksheet.set_column('A:A', 15)
     worksheet.set_column('B:B', 15)
-    logo_path = __file__[0:len(__file__) - 8] + '/templates/img/logo.jpeg'
+    logo_path = str(pathlib.Path(__file__).parent.absolute()) + '/templates/img/logo.jpeg'
     worksheet.insert_image('A1', logo_path)
     # Prepare text insertion: See  →
     # https://xlsxwriter.readthedocs.io/example_images.html
@@ -639,7 +639,7 @@ def get_DB(browser, DB=[], dfg=pd.DataFrame(), sleep=0.8,
     dfg = dfg.reset_index(drop=True)
     assert dfg.shape[0] == 324
     # DICT CAT-PRODS-TAB
-    dict_tables_path = __file__[0:len(__file__) - 8] + '/dict_tables.json'
+    dict_tables_path = str(pathlib.Path(__file__).parent.absolute()) + '/dict_tables.json'
     with open(dict_tables_path) as file_json:
         dict_tables = json.loads(file_json.read())
     # with open('dict_tables.json') as file_json:

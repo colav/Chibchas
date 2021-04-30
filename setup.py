@@ -68,7 +68,7 @@ def main():
 
         # Details
         url="https://github.com/colav/Chibchas",
-        scripts=['bin/chibchas_server'],
+        scripts=['bin/chibchas_server','bin/chibchas_institulac'],
         #
         license="BSD",
 

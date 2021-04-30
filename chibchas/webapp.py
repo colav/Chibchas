@@ -6,6 +6,7 @@ from chibchas.tools import main
 import uuid
 import tempfile
 import shutil
+import sys
 
 # App config.
 DEBUG = True
@@ -63,9 +64,17 @@ def executor():
     print(session)
     username = session['username']
     password = session['password']
-    tmp_path = tempfile.mkdtemp()
+    tmp_path = tempfile.gettempdir()+"/"+username
     print("Saving data on temporal folder {}".format(tmp_path))
-    main(username, password, tmp_path)
+    for n in range(max_tries):
+    try:
+        main(username, password, tmp_path)
+    except:
+        print("Unexpected error:", sys.exc_info()[0])
+        print('='*80)
+        print(f'try {n}/{max_tries}')
+        print('='*80)
+
     shutil.copytree(tmp_path, gdrive_path, dirs_exist_ok=True)
     return redirect(url_for('index'))
 
