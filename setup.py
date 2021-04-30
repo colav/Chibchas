@@ -54,7 +54,7 @@ def main():
         name="Chibchas",
 
         # Version number (initial):
-        version="0.0.1-alpha",
+        version="0.1.3",
 
         # Application author details:
         author="Colav",
@@ -68,7 +68,7 @@ def main():
 
         # Details
         url="https://github.com/colav/Chibchas",
-        scripts=['bin/chibchas_server'],
+        scripts=['bin/chibchas_server','bin/chibchas_institulac'],
         #
         license="BSD",
 
@@ -84,6 +84,7 @@ def main():
             'Flask-Bootstrap',
             'html5lib',
             'pandas',
+            'numpy',
             'helium',
             'xlsxwriter',
             'lxml',
