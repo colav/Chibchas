@@ -4,8 +4,8 @@ from tools import main, getpass, time
 __file__='.........'
 
 if __name__=='__main__':
-    user='annyarango'#input('usuario: ')
-    password='1@Silver'#getpass.getpass('Contraseña: ')
+    user=input('usuario: ')
+    password=getpass.getpass('Contraseña: ')
     
     TRYMAX=10
     for n in range(TRYMAX):
