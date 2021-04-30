@@ -545,6 +545,13 @@ def login(user, password, sleep=0.8, headless=True):
     # add new cookie
     browser.add_cookie(new_cookie)
 
+    try:
+        error=browser.find_element_by_class_name("error")
+        print("ERROR! Bad login or password")
+        return False
+    except NoSuchElementException:
+        pass    
+
     # navigation 1
     time.sleep(sleep)
     h.click('Aval')
@@ -1701,6 +1708,12 @@ def main(user, password, DIR='InstituLAC', CHECKPOINT=True,
     '''
     '''
     browser = login(user, password, headless=headless)
+    
+    LOGIN=True
+    if not browser:
+        LOGIN=False
+        return LOGIN
+        
     time.sleep(2)
 
     DB, dfg, start = checkpoint(DIR=DIR, CHECKPOINT=CHECKPOINT)
@@ -1717,3 +1730,4 @@ def main(user, password, DIR='InstituLAC', CHECKPOINT=True,
     if nones:
         print('WARNING:Nones IN DB')
     to_excel(DB, dfg, DIR=DIR)
+    return LOGIN
