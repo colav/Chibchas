@@ -1719,7 +1719,7 @@ def main(user, password, DIR='InstituLAC', CHECKPOINT=True,
     print('*' * 80)
     print(f'start → {len(DB)}')
     print('*' * 80)
-    if end and start and end <= start:
+    if end and start and end < start:
         sys.exit('ERROR! end<=start')
 
     DB, dfg = get_DB(browser, DB=DB, dfg=dfg, DIR=DIR,
