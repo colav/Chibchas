@@ -515,8 +515,11 @@ def login(user,password,sleep=0.8,headless=True):
     browser.add_cookie(new_cookie)
     try:
         error=browser.find_element_by_class_name("error")
-        print("ERROR! Bad login or password")
-        return False
+        if error.text.lower().find('fallidos')>-1:        
+            print("ERROR! Bad login or password")
+            return False
+        else:
+            pass
     except NoSuchElementException:
         pass  
 

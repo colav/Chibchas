@@ -39,6 +39,7 @@ Mount the filesystem, it doesn't required administrative permissions.
 `pip install chibchas`
 
 # Usage
+## Web app
 Let's start the server executing
 ```.sh
 chibchas_server
@@ -54,6 +55,12 @@ you can access to the server for the endpoints for example on: http://127.0.1.1:
 
 if depends of the ip and port that you are providen to chibchas.
 
+## Console
+To obtain the information of the first two groups and save the output files in `/home/usario/somedir`, use
+```bash
+chibchas_institulac --gdrive_path=/home/restrepo/tmp  --end=2
+```
+check `chibchas_institulac --help` for further options
 
 # License
 BSD-3-Clause License 
