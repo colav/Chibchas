@@ -4,7 +4,7 @@ import re
 import time
 import getpass
 import os
-
+import sys
 
 #requirements
 import json
@@ -334,7 +334,9 @@ def format_info(df, writer, sheet_name):
     #Prepare image insertion: See → https://xlsxwriter.readthedocs.io/example_images.html
     worksheet.set_column('A:A', 15)
     worksheet.set_column('B:B', 15)
-    worksheet.insert_image('A1', 'img/udea.jpeg')
+
+    logo_path = __file__[0:len(__file__)-8] + '/templates/img/logo.jpeg'
+    worksheet.insert_image('A1', logo_path)
     
     # title 1 UNIVERSIDAD DE ANTIOQUIA
     title = workbook.add_format({'font_size':16,'center_across':True})
@@ -427,7 +429,8 @@ def format_ptt(workbook):
     #Prepare image insertion: See → https://xlsxwriter.readthedocs.io/example_images.html
     worksheet.set_column('A:A', 15)
     worksheet.set_column('B:B', 15)
-    worksheet.insert_image('A1', 'img/udea.jpeg')
+    logo_path = __file__[0:len(__file__)-8] + '/templates/img/logo.jpeg'
+    worksheet.insert_image('A1', logo_path)
     #Prepare text insertion: See  → https://xlsxwriter.readthedocs.io/example_images.html
     worksheet.set_column('C:C', 140,general)
     worksheet.set_row_pixels(0, 60)
@@ -455,7 +458,7 @@ def format_ptt(workbook):
     worksheet.set_row_pixels(20, 40)
     worksheet.set_row_pixels(22, 40)
 
-def login(user,password,sleep=0.8):
+def login(user,password,sleep=0.8,headless=True):
     #def login(user,password): → browser, otro, otro
     # MAIN CODE
 
@@ -465,7 +468,7 @@ def login(user,password,sleep=0.8):
     # passw=
 
     # login
-    browser = h.start_firefox('https://scienti.minciencias.gov.co/institulac2-war/',headless=True)
+    browser = h.start_firefox('https://scienti.minciencias.gov.co/institulac2-war/',headless=headless)
 
     #browser = h.start_firefox('https://scienti.minciencias.gov.co/institulac2-war/')
     time.sleep(sleep)
@@ -532,7 +535,7 @@ def login(user,password,sleep=0.8):
     h.select(browser.find_element_by_xpath('//table[@id="grupos_avalados"]//select[@name="maxRows"]'),'100')
     return browser
 
-def get_groups(browser,sleep=0.8):
+def get_groups(browser,DIR='InstituLAC',sleep=0.8):
     # catch 1: groups info [name, lider, cod,  link to producs]  
     # schema
     # empty df
@@ -584,24 +587,30 @@ def get_groups(browser,sleep=0.8):
 
         time.sleep(sleep)
         time.sleep(sleep)
+    
+    dfg=dfg.reset_index(drop=True)
+    with open(f'{DIR}/dfg.pickle', 'wb') as f:
+        pickle.dump(dfg, f)        
     return browser,dfg
 
-def get_DB(browser,sleep=0.8,DIR='InstituLAC'):
+def get_DB(browser,DB=[],dfg=pd.DataFrame(),sleep=0.8,DIR='InstituLAC',start=None,end=None,start_time=0):
     os.makedirs(DIR,exist_ok=True)
-    browser,dfg=get_groups(browser)
+    if dfg.empty:
+        browser,dfg=get_groups(browser,DIR=DIR,sleep=sleep)
     dfg = dfg.reset_index(drop=True)
     assert dfg.shape[0] == 324
     # DICT CAT-PRODS-TAB
     dict_tables_path = __file__[0:len(__file__)-8] + '/dict_tables.json'
     with open(dict_tables_path) as file_json:
-        dict_tables=json.loads(file_json.read())
+       dict_tables=json.loads(file_json.read())    
+    #with open('dict_tables.json') as file_json:
+    #    dict_tables=json.loads(file_json.read())
 
     time.sleep(sleep*2)
 
-    DB = [] # 
     LP = []
     LR = [] 
-    for idx in dfg.index[:1]:       # TEST
+    for idx in dfg.index[start:end]:       # TEST
 
         # create db for store things related to group
         DBG = {}
@@ -696,6 +705,7 @@ def get_DB(browser,sleep=0.8,DIR='InstituLAC'):
             h.click(i)
 
         # PAR: products with revisions
+        time.sleep(sleep*3) #DEBUG TIME
         h.wait_until(lambda: browser.find_element_by_xpath('//*[@id="ProdsAval"]'))
         h.click(browser.find_element_by_xpath('//*[@id="ProdsAval"]'))
 
@@ -814,23 +824,12 @@ def get_DB(browser,sleep=0.8,DIR='InstituLAC'):
         with open(f'{DIR}/DB.pickle', 'wb') as f:
             pickle.dump(DB, f)
 
-        with open(f'{DIR}/dfg.pickle', 'wb') as f:
-            pickle.dump(dfg, f)
+        print(time.time()-start_time)
 
     browser.close()    
     return DB,dfg
 
-def dummy_fix_df(DB):
-    for i in range(len(DB)):
-        for k in list(DB[i].keys())[2:]:
-            for kk in  DB[i][k].keys():
-                #print(i,k,kk)
-                if list(DB[i][k][kk].values())[0] is None:
-                    DB[i][k][kk]={'PAT_P_TABLE': pd.DataFrame()} 
-    return DB
-
 def to_excel(DB,dfg,DIR='InstituLAC'):
-#if True:
     os.makedirs(DIR,exist_ok=True)
     global general
     global writer
@@ -846,7 +845,9 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
         cod_gr = dfg.loc[idxx,'COL Grupo']
 
         # initialize object= output excel file
-        writer = pd.ExcelWriter(f'{DIR}/{name}{cod_gr}.xlsx', engine='xlsxwriter')
+        os.makedirs(f'{DIR}/{cod_gr}',exist_ok=True)
+        os.makedirs(f'{DIR}/{cod_gr}/Repositorio_digital_{cod_gr}',exist_ok=True)
+        writer = pd.ExcelWriter(f'{DIR}/{cod_gr}/{name}{cod_gr}.xlsx', engine='xlsxwriter')
 
         workbook=writer.book
 
@@ -1660,10 +1661,56 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
             pass
         #----------------w12---------------------------
         writer.save()
+
+
+def dummy_fix_df(DB):
+    nones=False
+    for i in range(len(DB)):
+        for k in list(DB[i].keys())[2:]:
+            for kk in  DB[i][k].keys():
+                #print(i,k,kk)
+                if list(DB[i][k][kk].values())[0] is None:
+                    nones=True
+                    DB[i][k][kk]={kk: pd.DataFrame()} 
+    return DB,nones
+
+def checkpoint(DIR='InstituLAC',CHECKPOINT=True):
+    DB_path=f'{DIR}/DB.pickle'
+    dfg_path=f'{DIR}/dfg.pickle'
+    if os.path.exists(DB_path) and os.path.exists(DB_path):
+        with open(DB_path, 'rb') as f:
+            DB=pickle.load(f)
+        with open(dfg_path, 'rb') as f:
+            dfg=pickle.load(f)    
+    else:
+        CHECKPOINT=False    
         
-def main(user,password,DIR='InstituLAC'):
-    browser=login(user,password)
-    time.sleep(5)
-    DB,dfg=get_DB(browser,DIR=DIR)
-    DB=dummy_fix_df(DB)
+    try:
+        oldend=len(DB)-1
+        if ( dfg.loc[oldend]['Nombre del grupo'] == 
+             DB[oldend]['Info_group']['Nombre Grupo'].dropna().iloc[-1]
+            and CHECKPOINT):
+            start=oldend+1
+            return DB,dfg,start
+    except:
+        return [],pd.DataFrame(),None
+
+def main(user,password,DIR='InstituLAC',CHECKPOINT=True,headless=True,start=None,end=None,start_time=0):
+    '''
+    '''
+    browser=login(user,password,headless=headless)
+    time.sleep(2)
+
+    DB,dfg,start=checkpoint(DIR=DIR,CHECKPOINT=CHECKPOINT)
+    print('*'*80)
+    print(f'start → {len(DB)}')
+    print('*'*80)
+    if end and start and end<=start:
+        sys.exit('ERROR! end<=start')
+
+    DB,dfg=get_DB(browser,DB=DB,dfg=dfg,DIR=DIR,start=start,end=end,start_time=start_time)
+
+    DB,nones=dummy_fix_df(DB)
+    if nones:
+        print('WARNING:Nones IN DB')
     to_excel(DB,dfg,DIR=DIR)        
