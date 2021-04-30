@@ -81,6 +81,7 @@ def main():
         # Dependent packages (distributions)
         install_requires=[
             'flask-wtf',
+            'wtforms==2.3.3',
             'Flask-Bootstrap',
             'html5lib',
             'pandas',
