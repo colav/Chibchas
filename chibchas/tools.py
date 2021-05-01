@@ -1768,4 +1768,5 @@ def main(user, password, DIR='InstituLAC', CHECKPOINT=True,
         print('WARNING:Nones IN DB')
     to_excel(DB, dfg, DIR=DIR)
     DBJ=to_json(DB, dfg, DIR=DIR)
+    
     return LOGIN
