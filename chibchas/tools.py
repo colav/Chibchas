@@ -5,6 +5,7 @@ import time
 import getpass
 import os
 import sys
+import re
 
 #requirements
 import json
@@ -1705,6 +1706,40 @@ def checkpoint(DIR='InstituLAC',CHECKPOINT=True):
         return [],pd.DataFrame(),None
 
 
+def to_json(DB,dfg,DIR='InstituLAC'):
+    DFG=dfg.copy()
+    DBJ=[]
+    for i in range(len(DB)):
+        db={}
+        db['Group']=DFG.drop('Revisar',axis='columns').loc[i].to_dict()
+
+        cs=DB[i]['Info_group'].columns[1:-2]
+
+        d={}
+        for c in cs:
+            d[' '.join(c.split()[0:4]).replace('(','')]=DB[i]['Info_group'][c].dropna().iloc[-1]
+
+        db['Info_group']=d
+
+
+        db['Members']=DB[i]['Members'][DB[i]['Members'].columns[1:4]].to_dict('records')
+
+        for k in [x for x in list(DB[i].keys()) if x not in ['Info_group','Members','Group']]:
+            for kk in DB[i][k].keys():
+                for kkk in DB[i][k][kk].keys():
+                    #print( f'{k}-{kk}{nk}' ) 
+                    df=DB[i][k][kk][kkk]
+                    if df is not None and not df.empty:
+                        nk=re.sub('[A-Z\_]','',kkk)
+                        cs=[c for c in df.columns if c.find('Unnamed:')==-1 and c!='Revisar']
+                        db[f'{k}-{kk}{nk}']=df[cs].to_dict('records')
+        DBJ.append(db)
+        
+    with open(f'{DIR}/DB.json', 'w') as outfile:
+        json.dump(DBJ, outfile)
+        
+    return DBJ
+
 def main(user, password, DIR='InstituLAC', CHECKPOINT=True,
          headless=True, start=None, end=None, start_time=0):
     '''
@@ -1732,4 +1767,5 @@ def main(user, password, DIR='InstituLAC', CHECKPOINT=True,
     if nones:
         print('WARNING:Nones IN DB')
     to_excel(DB, dfg, DIR=DIR)
+    DBJ=to_json(DB, dfg, DIR=DIR)
     return LOGIN
