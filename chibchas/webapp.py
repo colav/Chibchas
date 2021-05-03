@@ -70,14 +70,14 @@ def executor():
     max_tries = 10
     for n in range(max_tries):
         try:
-            LOGIN = main(username, password, tmp_path, end = 2)
+            LOGIN = main(username, password, tmp_path, end = None)
             if not LOGIN:
                 break
             
             for i in range(max_tries):
                 try:
                     shutil.copytree(tmp_path, gdrive_path, dirs_exist_ok=True)
-                    shutil.rmtree(tmp_path)
+                    #shutil.rmtree(tmp_path)
                     break
                 except Exception as e:
                     time.sleep(5)

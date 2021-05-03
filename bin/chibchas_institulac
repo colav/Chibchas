@@ -39,7 +39,7 @@ if __name__=='__main__':
             for i in range(max_tries):
                 try:
                     shutil.copytree(tmp_path, args.gdrive_path, dirs_exist_ok=True)
-                    shutil.rmtree(tmp_path)
+                    #shutil.rmtree(tmp_path)
                     break
                 except Exception as e:
                     time.sleep(5)
