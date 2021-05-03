@@ -19,6 +19,8 @@ parser.add_argument('--start', type=int, default=0,
                     help='Grupo donde empieza')
 parser.add_argument('--end', type=int, default=None,
                     help='Grupo donde termina')
+parser.add_argument('--keep_tmp', type=bool, default=True,
+                    help='Keep the output in /tmp folder')
 
 args = parser.parse_args()
 
@@ -38,8 +40,12 @@ if __name__=='__main__':
                 break
             for i in range(max_tries):
                 try:
-                    shutil.copytree(tmp_path, args.gdrive_path, dirs_exist_ok=True)
-                    #shutil.rmtree(tmp_path)
+                    if sys.version_info[:3]>=(3,8,0):
+                        shutil.copytree(tmp_path, args.gdrive_path, dirs_exist_ok=True)
+                    else:
+                        shutil.copytree(tmp_path, args.gdrive_path)
+                    if not args.keep_tmp:
+                        shutil.rmtree(tmp_path)
                     break
                 except Exception as e:
                     time.sleep(5)
