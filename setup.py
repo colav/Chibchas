@@ -54,7 +54,7 @@ def main():
         name="Chibchas",
 
         # Version number (initial):
-        version="0.1.4-beta",
+        version="0.1.5-beta",
 
         # Application author details:
         author="Colav",
