@@ -18,12 +18,19 @@ pd.set_option("max_rows",100)
 #pd.set_option("display.max_columns",100)
 pd.set_option("max_colwidth",1000)
 
-def get_info(df,cod_gr):
+def get_info(df,cod_gr):                               
+
+    # fix bug 
+    # nombre_lider missing
+    try:
+        nombre_lider = df['Nombre Líder'].dropna().iloc[0]
+    except IndexError:
+        nombre_lider = 'Sin dato Registrado'
     
     info= {
         'Nombre_Grupo' : df['Nombre Grupo'].dropna().iloc[0],
 
-        'Nombre_Lider' : df['Nombre Líder'].dropna().iloc[0],
+        'Nombre_Lider' : nombre_lider,
 
         'CCRG Grupo'  : cod_gr
     }
