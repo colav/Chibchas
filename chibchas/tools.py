@@ -615,7 +615,7 @@ def get_DB(browser,DB=[],dfg=pd.DataFrame(),sleep=0.8,DIR='InstituLAC',start=Non
     if dfg.empty:
         browser,dfg=get_groups(browser,DIR=DIR,sleep=sleep)
     dfg = dfg.reset_index(drop=True)
-    assert dfg.shape[0] == 324
+    #assert dfg.shape[0] == 324
     # DICT CAT-PRODS-TAB
     dict_tables_path = str(pathlib.Path(__file__).parent.absolute()) + '/dict_tables.json'
     with open(dict_tables_path) as file_json:
@@ -1724,7 +1724,10 @@ def to_json(DB,dfg,DIR='InstituLAC'):
 
         d={}
         for c in cs:
-            d[' '.join(c.split()[0:4]).replace('(','')]=DB[i]['Info_group'][c].dropna().iloc[-1]
+            try:
+                d[' '.join(c.split()[0:4]).replace('(','')]=DB[i]['Info_group'][c].dropna().iloc[-1]
+            except IndexError:
+                d[' '.join(c.split()[0:4]).replace('(','')]=''
 
         db['Info_group']=d
 
