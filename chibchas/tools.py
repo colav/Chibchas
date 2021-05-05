@@ -1714,7 +1714,7 @@ def checkpoint(DIR='InstituLAC',CHECKPOINT=True):
 
 
 def to_json(DB,dfg,DIR='InstituLAC'):
-    DFG=dfg.copy()
+    DFG=dfg.copy().reset_index(drop=True)
     DBJ=[]
     for i in range(len(DB)):
         db={}
@@ -1732,7 +1732,7 @@ def to_json(DB,dfg,DIR='InstituLAC'):
         db['Info_group']=d
 
 
-        db['Members']=DB[i]['Members'][DB[i]['Members'].columns[1:4]].to_dict('records')
+        db['Members']=DB[i]['Members'][DB[i]['Members'].columns[1:4]].fillna('').to_dict('records')
 
         for k in [x for x in list(DB[i].keys()) if x not in ['Info_group','Members','Group']]:
             for kk in DB[i][k].keys():
@@ -1742,7 +1742,7 @@ def to_json(DB,dfg,DIR='InstituLAC'):
                     if df is not None and not df.empty:
                         nk=re.sub('[A-Z\_]','',kkk)
                         cs=[c for c in df.columns if c.find('Unnamed:')==-1 and c!='Revisar']
-                        db[f'{k}-{kk}{nk}']=df[cs].to_dict('records')
+                        db[f'{k}-{kk}{nk}']=df[cs].fillna('').to_dict('records')
         DBJ.append(db)
         
     with open(f'{DIR}/DB.json', 'w') as outfile:
