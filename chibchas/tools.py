@@ -1718,7 +1718,7 @@ def to_json(DB,dfg,DIR='InstituLAC'):
     DBJ=[]
     for i in range(len(DB)):
         db={}
-        db['Group']=DFG.drop('Revisar',axis='columns').loc[i].to_dict()
+        db['Group']=DFG.drop('Revisar',axis='columns').fillna('').loc[i].to_dict()
 
         cs=DB[i]['Info_group'].columns[1:-2]
 
