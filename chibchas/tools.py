@@ -974,14 +974,17 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
         # libros formacion
         try:
             df=rename_col(clean_df(DBG['ASC_P']['GEN_CONT_IMP_P']['GC_I_P_TABLE_5']),'Título del libro','Título del libro formación') # lib form
+            
+            if df.shape[0] != 0:
 
-            #df.to_excel(writer,sheet_name='ASC_P',startrow = var_as)
+                eh=DBEH['ASC_P']['GEN_CONT_IMP_P']['GC_I_P_TABLE_5']
 
-            eh=DBEH['ASC_P']['GEN_CONT_IMP_P']['GC_I_P_TABLE_5']
+                format_df(df, '5.LIB y LIB_FOR',  var_w5 , writer,eh)
 
-            format_df(df, '5.LIB y LIB_FOR',  var_w5 , writer,eh)
+                var_w5 += df.shape[0] + 3
 
-            var_w5 += df.shape[0] + 3
+            else: 
+                raise(KeyError)
 
 
         except KeyError as e:
