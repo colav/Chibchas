@@ -1694,27 +1694,29 @@ def dummy_fix_df(DB):
                     DB[i][k][kk]={kk: pd.DataFrame()} 
     return DB,nones
 
-def checkpoint(DIR='InstituLAC',CHECKPOINT=True):
+def checkpoint(DIR='InstituLAC',start=None,CHECKPOINT=True):
     DB_path=f'{DIR}/DB.pickle'
     dfg_path=f'{DIR}/dfg.pickle'
+    RETURN=([],pd.DataFrame(),start)
     if os.path.exists(DB_path) and os.path.exists(DB_path):
         with open(DB_path, 'rb') as f:
             DB=pickle.load(f)
         with open(dfg_path, 'rb') as f:
             dfg=pickle.load(f)    
     else:
-        CHECKPOINT=False    
+        CHECKPOINT=False
+        return RETURN+(CHECKPOINT,)
         
     try:
         oldend=len(DB)-1
         if ( dfg.loc[oldend]['Nombre del grupo'] == 
              DB[oldend]['Info_group']['Nombre Grupo'].dropna().iloc[-1]
             and CHECKPOINT):
-            start=oldend+1
-            return DB,dfg,start
+            start=oldend+1 # Reset start
+            return DB,dfg,start,CHECKPOINT
     except:
-        return [],pd.DataFrame(),None
-
+        CHECKPOINT=False
+        return RETURN+(CHECKPOINT,)        
 
 def to_json(DB,dfg,DIR='InstituLAC'):
     DFG=dfg.copy().reset_index(drop=True)
@@ -1766,10 +1768,14 @@ def main(user, password, DIR='InstituLAC', CHECKPOINT=True,
         
     time.sleep(2)
 
-    DB, dfg, start = checkpoint(DIR=DIR, CHECKPOINT=CHECKPOINT)
+    DB, dfg, start, CHECKPOINT = checkpoint(DIR=DIR, start=start, CHECKPOINT=CHECKPOINT)
     print('*' * 80)
-    print(f'start → {len(DB)}')
+    if CHECKPOINT:
+        print(f'start → {len(DB)}')
+    else:
+        print(f'start → {start}')
     print('*' * 80)
+    
     if end and start and end < start:
         sys.exit('ERROR! end<=start')
 

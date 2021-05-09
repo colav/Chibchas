@@ -10,7 +10,7 @@ fi
 #Safe: only if $1 exists
 rm -rf /tmp/test
 
-chibchas_institulac --gdrive_path=/tmp/test --keep_tmp=False --start=1 --end=2 << EOF
+chibchas_institulac --gdrive_path=/tmp/test --start=1 --end=2 << EOF
 $1
 
 EOF

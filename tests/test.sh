@@ -11,7 +11,7 @@ fi
 rm -rf /tmp/chibchas/"$1"
 rm -rf /tmp/test
 
-chibchas_institulac --gdrive_path=/tmp/test --keep_tmp=False --start=0 --end=1 << EOF
+chibchas_institulac --gdrive_path=/tmp/test --start=0 --end=1 << EOF
 $1
 
 EOF
