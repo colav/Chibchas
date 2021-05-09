@@ -1,7 +1,7 @@
 . assert.sh
 #python3 setup.py develop --user
 export PATH=/home/restrepo/.local/bin:$PATH
-which chibchas_institulac
+#which chibchas_institulac
 if [ ! "$1" ]; then
     echo USAGE: $0 InstituLAC_login
     exit
@@ -12,7 +12,6 @@ rm -rf /tmp/test
 
 chibchas_institulac --gdrive_path=/tmp/test --start=1 --end=2 << EOF
 $1
-
 EOF
 
 assert "ls -l /tmp/test/ | wc -l" 6

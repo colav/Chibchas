@@ -1,7 +1,7 @@
 . assert.sh
 #python3 setup.py develop --user
-export PATH=/home/restrepo/.local/bin:$PATH
-which chibchas_institulac
+export PATH=$HOME/.local/bin:$PATH
+#which chibchas_institulac
 if [ ! "$1" ]; then
     echo USAGE: $0 InstituLAC_login
     exit
@@ -13,7 +13,6 @@ rm -rf /tmp/test
 
 chibchas_institulac --gdrive_path=/tmp/test --start=0 --end=1 << EOF
 $1
-
 EOF
 
 echo "if [ -s /tmp/test/*/*.xlsx ]; then  echo 1; else echo 2; fi" > checkxlsx
