@@ -22,6 +22,8 @@ parser.add_argument('--start', type=int, default=0,
                     help='Starting Group')
 parser.add_argument('--end', type=int, default=None,
                     help='Ending Group')
+parser.add_argument('--COL_Group', type=str, default='',
+                    help='Extract info for code `COL Group` isntead of start/end')
 parser.add_argument('-keep_tmp','--keep_tmp', default=True, action='store_true',
                     help='DEFAULT: Keep the output in /tmp folder')
 parser.add_argument('-remove_tmp','--remove_tmp', dest='keep_tmp', action='store_false',
@@ -40,7 +42,9 @@ if __name__=='__main__':
     for n in range(max_tries):
         try:
             #Set end=None to reach the last element
-            LOGIN = main(user,password,DIR=tmp_path,CHECKPOINT=True,headless=args.headless,start=args.start,end=args.end,start_time=time.time())
+            LOGIN = main(user,password,DIR=tmp_path,CHECKPOINT=True,headless=args.headless,
+                           start=args.start,end=args.end,COL_Group=args.COL_Group,
+                           start_time=time.time())
             if not LOGIN:
                 break
             for i in range(max_tries):
