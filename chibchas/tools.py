@@ -860,11 +860,16 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
         name = 'Plantilla_Formato de verificación de información_GrupLAC_894-2021_'
 
         cod_gr = dfg.loc[idxx,'COL Grupo']
+        try:
+            col_gr = dfg[dfg['Nombre del grupo']==DBG['Info_group']['Nombre Grupo'].dropna().iloc[-1]
+                      ]['COL Grupo'].iloc[-1]
+        except:
+            col_gr=cod_gr #safe option valid in sequential mode
 
         # initialize object= output excel file
-        os.makedirs(f'{DIR}/{cod_gr}',exist_ok=True)
-        os.makedirs(f'{DIR}/{cod_gr}/Repositorio_digital_{cod_gr}',exist_ok=True)
-        writer = pd.ExcelWriter(f'{DIR}/{cod_gr}/{name}{cod_gr}.xlsx', engine='xlsxwriter')
+        os.makedirs(f'{DIR}/{col_gr}',exist_ok=True)
+        os.makedirs(f'{DIR}/{col_gr}/Repositorio_digital_{col_gr}',exist_ok=True)
+        writer = pd.ExcelWriter(f'{DIR}/{col_gr}/{name}{col_gr}.xlsx', engine='xlsxwriter')
 
         workbook=writer.book
 
