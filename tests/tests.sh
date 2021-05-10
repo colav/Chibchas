@@ -9,3 +9,12 @@ echo "============================================"
 ./test2.sh $1 $2
 echo "============================================"
 ./test3.sh $1 $2
+echo "============================================"
+./test4.sh $1 $2
+
+echo "kill geckcodriver (y/n):"
+read k
+if [ "$k"  == "y" ];then
+    kill -9 $(ps caux | grep geckodriver | awk '{print $2}')
+fi
+rm -rf /tmp/test/

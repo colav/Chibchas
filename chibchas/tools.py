@@ -610,11 +610,19 @@ def get_groups(browser,DIR='InstituLAC',sleep=0.8):
         pickle.dump(dfg, f)        
     return browser,dfg
 
-def get_DB(browser,DB=[],dfg=pd.DataFrame(),sleep=0.8,DIR='InstituLAC',start=None,end=None,start_time=0):
+def get_DB(browser,DB=[],dfg=pd.DataFrame(),sleep=0.8,DIR='InstituLAC',
+           start=None,end=None,COL_Group='',start_time=0):
     os.makedirs(DIR,exist_ok=True)
     if dfg.empty:
         browser,dfg=get_groups(browser,DIR=DIR,sleep=sleep)
     dfg = dfg.reset_index(drop=True)
+
+    #find start and end if COL_Group
+    if COL_Group:
+        dfcg=dfg[dfg['COL Grupo']==COL_Group]
+        if not dfcg.empty:
+            start=dfcg.index[0]
+            end=start+1
     #assert dfg.shape[0] == 324
     # DICT CAT-PRODS-TAB
     dict_tables_path = str(pathlib.Path(__file__).parent.absolute()) + '/dict_tables.json'
@@ -879,7 +887,7 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
         format_ptt(workbook)
 
         # INFO GROUP
-        df=get_info(DBG['Info_group'], cod_gr)
+        df=get_info(DBG['Info_group'], col_gr)
         format_info(df, writer, '2.Datos de contacto')
 
         # WORKSHEET 1
@@ -1761,7 +1769,7 @@ def to_json(DB,dfg,DIR='InstituLAC'):
     return DBJ
 
 def main(user, password, DIR='InstituLAC', CHECKPOINT=True,
-         headless=True, start=None, end=None, start_time=0):
+         headless=True, start=None, end=None, COL_Group='',start_time=0):
     '''
     '''
     browser = login(user, password, headless=headless)
@@ -1785,7 +1793,7 @@ def main(user, password, DIR='InstituLAC', CHECKPOINT=True,
         sys.exit('ERROR! end<=start')
 
     DB, dfg = get_DB(browser, DB=DB, dfg=dfg, DIR=DIR,
-                     start=start, end=end, start_time=start_time)
+                     start=start, end=end, COL_Group=COL_Group, start_time=start_time)
 
     DB, nones = dummy_fix_df(DB)
     if nones:
