@@ -1461,13 +1461,16 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
         try:
             df=rename_col(clean_df(DBG['ASC_P']['PASC_P']['PASC_FOR_P_TABLE']),'Nombre','Nombre producto interes social')
 
-            #df.to_excel(writer,sheet_name='ASC_P',startrow = var_as)
+            if df.shape[0] != 0:
 
-            eh=DBEH['ASC_P']['PASC_P']['PASC_FOR_P_TABLE']
+                eh=DBEH['ASC_P']['PASC_P']['PASC_FOR_P_TABLE']
 
-            format_df(df, '11.ASC y Divulgación', var_w11, writer,eh)
+                format_df(df, '11.ASC y Divulgación', var_w11, writer,eh)
 
-            var_w11 += df.shape[0] + 3
+                var_w11 += df.shape[0] + 3
+
+            else:
+                raise(KeyError)
 
         except KeyError as e:
 
@@ -1477,28 +1480,33 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
         try:
             df=rename_col(clean_df(DBG['ASC_P']['PASC_P']['PASC_TRA_P_TABLE']), 'Nombre','Nombre del Proceso de apropiación social del conocimiento resultado del trabajo conjunto entre un Centro de Ciencia y un grupo de investigación')
 
-            #df.to_excel(writer,sheet_name='ASC_P',startrow = var_as)
+            if df.shape[0] != 0:
 
-            eh=DBEH['ASC_P']['PASC_P']['PASC_TRA_P_TABLE']
+                eh=DBEH['ASC_P']['PASC_P']['PASC_TRA_P_TABLE']
 
-            format_df(df, '11.ASC y Divulgación', var_w11, writer,eh)
+                format_df(df, '11.ASC y Divulgación', var_w11, writer,eh)
 
-            var_w11 += df.shape[0] + 3
+                var_w11 += df.shape[0] + 3
+            else:
+                raise(KeyError)
 
         except KeyError as e:
 
             pass
+
         # Nombre del Proceso de apropiación social del conocimiento para la generación de insumos de política pública y normatividad
         try:
             df=rename_col(clean_df(DBG['ASC_P']['PASC_P']['PASC_GEN_P_TABLE']),'Nombre','Nombre del Proceso de apropiación social del conocimiento para la generación de insumos de política pública y normatividad')
 
-            #df.to_excel(writer,sheet_name='ASC_P',startrow = var_as)
+            if df.shape[0] != 0:
 
-            eh=DBEH['ASC_P']['PASC_P']['PASC_GEN_P_TABLE']
+                eh=DBEH['ASC_P']['PASC_P']['PASC_GEN_P_TABLE']
 
-            format_df(df, '11.ASC y Divulgación', var_w11, writer,eh)
+                format_df(df, '11.ASC y Divulgación', var_w11, writer,eh)
 
-            var_w11 += df.shape[0] + 3
+                var_w11 += df.shape[0] + 3
+            else:
+                raise(KeyError)
 
         except KeyError as e:
 
@@ -1508,13 +1516,15 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
         try:
             df=rename_col(clean_df(DBG['ASC_P']['PASC_P']['PASC_CAD_P_TABLE']),'Nombre', 'Nombre del Proceso de apropiación social del conocimiento para el fortalecimiento de cadenas productivas')
 
-            #df.to_excel(writer,sheet_name='ASC_P',startrow = var_as)
+            if df.shape[0] != 0:
 
-            eh=DBEH['ASC_P']['PASC_P']['PASC_CAD_P_TABLE']
+                eh=DBEH['ASC_P']['PASC_P']['PASC_CAD_P_TABLE']
 
-            format_df(df, '11.ASC y Divulgación', var_w11, writer,eh)
+                format_df(df, '11.ASC y Divulgación', var_w11, writer,eh)
 
-            var_w11 += df.shape[0] + 3
+                var_w11 += df.shape[0] + 3
+            else:
+                raise(KeyError)
 
         except KeyError as e:
 
@@ -1525,13 +1535,15 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
         try:
             df=rename_col(clean_df(DBG['ASC_P']['DC_P']['DC_CD_P_TABLE']),'Título del proyecto','Título del proyecto para la generación de piezas digitales')
 
-            #df.to_excel(writer,sheet_name='ASC_P',startrow = var_as)
+            if df.shape[0] != 0:
 
-            eh=DBEH['ASC_P']['DC_P']['DC_CD_P_TABLE']
+                eh=DBEH['ASC_P']['DC_P']['DC_CD_P_TABLE']
 
-            format_df(df, '11.ASC y Divulgación', var_w11, writer,eh)
+                format_df(df, '11.ASC y Divulgación', var_w11, writer,eh)
 
-            var_w11 += df.shape[0] + 3
+                var_w11 += df.shape[0] + 3
+            else:
+                raise(KeyError)
 
         except KeyError as e:
 
@@ -1541,13 +1553,15 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
         try:
             df=rename_col(clean_df(DBG['ASC_P']['DC_P']['DC_CON_P_TABLE']),'Título del proyecto','Título del proyecto para la generación de piezas Textuales (incluyendo cartillas, periódicos, revistas, etc.), Producción de estrategias transmediáticas y Desarrollos web')
 
-            #df.to_excel(writer,sheet_name='ASC_P',startrow = var_as)
+            if df.shape[0] != 0:
 
-            eh=DBEH['ASC_P']['DC_P']['DC_CON_P_TABLE']
+                eh=DBEH['ASC_P']['DC_P']['DC_CON_P_TABLE']
 
-            format_df(df, '11.ASC y Divulgación', var_w11, writer,eh)
+                format_df(df, '11.ASC y Divulgación', var_w11, writer,eh)
 
-            var_w11 += df.shape[0] + 3
+                var_w11 += df.shape[0] + 3
+            else:
+                raise(KeyError)
 
         except KeyError as e:
 
@@ -1557,13 +1571,15 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
         try:
             df=rename_col(clean_df(DBG['ASC_P']['DC_P']['DC_TRA_P_TABLE']), 'Título del proyecto','Título del proyecto estrategia trasmediatica')
 
-            #df.to_excel(writer,sheet_name='ASC_P',startrow = var_as)
+            if df.shape[0] != 0:
 
-            eh=DBEH['ASC_P']['DC_P']['DC_TRA_P_TABLE']
+                eh=DBEH['ASC_P']['DC_P']['DC_TRA_P_TABLE']
 
-            format_df(df, '11.ASC y Divulgación', var_w11, writer,eh)
+                format_df(df, '11.ASC y Divulgación', var_w11, writer,eh)
 
-            var_w11 += df.shape[0] + 3
+                var_w11 += df.shape[0] + 3
+            else:
+                raise(KeyError)
 
         except KeyError as e:
 
@@ -1573,11 +1589,15 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
         try:
             df=rename_col(clean_df(DBG['ASC_P']['DC_P']['DC_DES_P_TABLE']),'Título del proyecto','Título del proyecto desarrollo web')
 
-            eh=DBEH['ASC_P']['DC_P']['DC_DES_P_TABLE']
+            if df.shape[0] != 0:
 
-            format_df(df, '11.ASC y Divulgación', var_w11, writer,eh)
+                eh=DBEH['ASC_P']['DC_P']['DC_DES_P_TABLE']
 
-            var_w11 += df.shape[0] + 3
+                format_df(df, '11.ASC y Divulgación', var_w11, writer,eh)
+
+                var_w11 += df.shape[0] + 3
+            else:
+                raise(KeyError)
 
         except KeyError as e:
 
