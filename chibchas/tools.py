@@ -610,12 +610,20 @@ def get_groups(browser,DIR='InstituLAC',sleep=0.8):
         pickle.dump(dfg, f)        
     return browser,dfg
 
-def get_DB(browser,DB=[],dfg=pd.DataFrame(),sleep=0.8,DIR='InstituLAC',start=None,end=None,start_time=0):
+def get_DB(browser,DB=[],dfg=pd.DataFrame(),sleep=0.8,DIR='InstituLAC',
+           start=None,end=None,COL_Group='',start_time=0):
     os.makedirs(DIR,exist_ok=True)
     if dfg.empty:
         browser,dfg=get_groups(browser,DIR=DIR,sleep=sleep)
     dfg = dfg.reset_index(drop=True)
-    assert dfg.shape[0] == 324
+
+    #find start and end if COL_Group
+    if COL_Group:
+        dfcg=dfg[dfg['COL Grupo']==COL_Group]
+        if not dfcg.empty:
+            start=dfcg.index[0]
+            end=start+1
+    #assert dfg.shape[0] == 324
     # DICT CAT-PRODS-TAB
     dict_tables_path = str(pathlib.Path(__file__).parent.absolute()) + '/dict_tables.json'
     with open(dict_tables_path) as file_json:
@@ -860,11 +868,16 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
         name = 'Plantilla_Formato de verificación de información_GrupLAC_894-2021_'
 
         cod_gr = dfg.loc[idxx,'COL Grupo']
+        try:
+            col_gr = dfg[dfg['Nombre del grupo']==DBG['Info_group']['Nombre Grupo'].dropna().iloc[-1]
+                      ]['COL Grupo'].iloc[-1]
+        except:
+            col_gr=cod_gr #safe option valid in sequential mode
 
         # initialize object= output excel file
-        os.makedirs(f'{DIR}/{cod_gr}',exist_ok=True)
-        os.makedirs(f'{DIR}/{cod_gr}/Repositorio_digital_{cod_gr}',exist_ok=True)
-        writer = pd.ExcelWriter(f'{DIR}/{cod_gr}/{name}{cod_gr}.xlsx', engine='xlsxwriter')
+        os.makedirs(f'{DIR}/{col_gr}',exist_ok=True)
+        os.makedirs(f'{DIR}/{col_gr}/Repositorio_digital_{col_gr}',exist_ok=True)
+        writer = pd.ExcelWriter(f'{DIR}/{col_gr}/{name}{col_gr}.xlsx', engine='xlsxwriter')
 
         workbook=writer.book
 
@@ -874,7 +887,7 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
         format_ptt(workbook)
 
         # INFO GROUP
-        df=get_info(DBG['Info_group'], cod_gr)
+        df=get_info(DBG['Info_group'], col_gr)
         format_info(df, writer, '2.Datos de contacto')
 
         # WORKSHEET 1
@@ -1714,45 +1727,50 @@ def dummy_fix_df(DB):
                     DB[i][k][kk]={kk: pd.DataFrame()} 
     return DB,nones
 
-def checkpoint(DIR='InstituLAC',CHECKPOINT=True):
+def checkpoint(DIR='InstituLAC',start=None,CHECKPOINT=True):
     DB_path=f'{DIR}/DB.pickle'
     dfg_path=f'{DIR}/dfg.pickle'
+    RETURN=([],pd.DataFrame(),start)
     if os.path.exists(DB_path) and os.path.exists(DB_path):
         with open(DB_path, 'rb') as f:
             DB=pickle.load(f)
         with open(dfg_path, 'rb') as f:
             dfg=pickle.load(f)    
     else:
-        CHECKPOINT=False    
+        CHECKPOINT=False
+        return RETURN+(CHECKPOINT,)
         
     try:
         oldend=len(DB)-1
         if ( dfg.loc[oldend]['Nombre del grupo'] == 
              DB[oldend]['Info_group']['Nombre Grupo'].dropna().iloc[-1]
             and CHECKPOINT):
-            start=oldend+1
-            return DB,dfg,start
+            start=oldend+1 # Reset start
+            return DB,dfg,start,CHECKPOINT
     except:
-        return [],pd.DataFrame(),None
-
+        CHECKPOINT=False
+        return RETURN+(CHECKPOINT,)        
 
 def to_json(DB,dfg,DIR='InstituLAC'):
-    DFG=dfg.copy()
+    DFG=dfg.copy().reset_index(drop=True)
     DBJ=[]
     for i in range(len(DB)):
         db={}
-        db['Group']=DFG.drop('Revisar',axis='columns').loc[i].to_dict()
+        db['Group']=DFG.drop('Revisar',axis='columns').fillna('').loc[i].to_dict()
 
         cs=DB[i]['Info_group'].columns[1:-2]
 
         d={}
         for c in cs:
-            d[' '.join(c.split()[0:4]).replace('(','')]=DB[i]['Info_group'][c].dropna().iloc[-1]
+            try:
+                d[' '.join(c.split()[0:4]).replace('(','')]=DB[i]['Info_group'][c].dropna().iloc[-1]
+            except IndexError:
+                d[' '.join(c.split()[0:4]).replace('(','')]=''
 
         db['Info_group']=d
 
 
-        db['Members']=DB[i]['Members'][DB[i]['Members'].columns[1:4]].to_dict('records')
+        db['Members']=DB[i]['Members'][DB[i]['Members'].columns[1:4]].fillna('').to_dict('records')
 
         for k in [x for x in list(DB[i].keys()) if x not in ['Info_group','Members','Group']]:
             for kk in DB[i][k].keys():
@@ -1762,7 +1780,7 @@ def to_json(DB,dfg,DIR='InstituLAC'):
                     if df is not None and not df.empty:
                         nk=re.sub('[A-Z\_]','',kkk)
                         cs=[c for c in df.columns if c.find('Unnamed:')==-1 and c!='Revisar']
-                        db[f'{k}-{kk}{nk}']=df[cs].to_dict('records')
+                        db[f'{k}-{kk}{nk}']=df[cs].fillna('').to_dict('records')
         DBJ.append(db)
         
     with open(f'{DIR}/DB.json', 'w') as outfile:
@@ -1771,7 +1789,7 @@ def to_json(DB,dfg,DIR='InstituLAC'):
     return DBJ
 
 def main(user, password, DIR='InstituLAC', CHECKPOINT=True,
-         headless=True, start=None, end=None, start_time=0):
+         headless=True, start=None, end=None, COL_Group='',start_time=0):
     '''
     '''
     browser = login(user, password, headless=headless)
@@ -1783,15 +1801,19 @@ def main(user, password, DIR='InstituLAC', CHECKPOINT=True,
         
     time.sleep(2)
 
-    DB, dfg, start = checkpoint(DIR=DIR, CHECKPOINT=CHECKPOINT)
+    DB, dfg, start, CHECKPOINT = checkpoint(DIR=DIR, start=start, CHECKPOINT=CHECKPOINT)
     print('*' * 80)
-    print(f'start → {len(DB)}')
+    if CHECKPOINT:
+        print(f'start → {len(DB)}')
+    else:
+        print(f'start → {start}')
     print('*' * 80)
+    
     if end and start and end < start:
         sys.exit('ERROR! end<=start')
 
     DB, dfg = get_DB(browser, DB=DB, dfg=dfg, DIR=DIR,
-                     start=start, end=end, start_time=start_time)
+                     start=start, end=end, COL_Group=COL_Group, start_time=start_time)
 
     DB, nones = dummy_fix_df(DB)
     if nones:
