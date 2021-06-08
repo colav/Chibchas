@@ -115,6 +115,9 @@ def main():
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
         ],
+        package_dir={"": "chibchas"},
+        packages=find_packages(where="chibchas"),
+        python_requires=">=3.6",
     )
 
 
