@@ -61,7 +61,9 @@ def main():
         author_email="colav@udea.edu.co",
 
         # Packages
-        packages=find_packages(exclude=['tests']),
+        package_dir={"": "chibchas"},
+        packages=find_packages(where="chibchas",exclude=['tests']),
+        python_requires=">=3.6",
 
         # Include additional files into the package
         include_package_data=True,
@@ -115,9 +117,6 @@ def main():
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
         ],
-        package_dir={"": "chibchas"},
-        packages=find_packages(where="chibchas"),
-        python_requires=">=3.6",
     )
 
 
