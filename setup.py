@@ -61,8 +61,7 @@ def main():
         author_email="colav@udea.edu.co",
 
         # Packages
-        package_dir={"": "chibchas"},
-        packages=find_packages(where="chibchas",exclude=['tests']),
+        packages=find_packages(exclude=['tests']),
         python_requires=">=3.6",
 
         # Include additional files into the package
