@@ -9,6 +9,9 @@ import sys
 parser = argparse.ArgumentParser(description='Chibchas Institulac')
 parser.add_argument('--gdrive_path', type=str,required=True,
                     help='Google drive mount point path to save the data')
+parser.add_argument('--institution', type=str, default='UNIVERSIDAD DE ANTIOQUIA',
+                    help='''InstituLAC official institution Name in login page. 
+                           DEFAULT="UNIVERSIDAD DE ANTIOQUIA"''')
 parser.add_argument('--max_tries', type=int, default=10,
                     help='max tries in case of error downloading')
 #See:  https://stackoverflow.com/a/52403318
@@ -42,7 +45,8 @@ if __name__=='__main__':
     for n in range(max_tries):
         try:
             #Set end=None to reach the last element
-            LOGIN = main(user,password,DIR=tmp_path,CHECKPOINT=True,headless=args.headless,
+            LOGIN = main(user,password,institution=args.institution,DIR=tmp_path,
+                           CHECKPOINT=True,headless=args.headless,
                            start=args.start,end=args.end,COL_Group=args.COL_Group,
                            start_time=time.time())
             if not LOGIN:
