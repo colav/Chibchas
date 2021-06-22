@@ -466,7 +466,7 @@ def format_ptt(workbook):
     worksheet.set_row_pixels(20, 40)
     worksheet.set_row_pixels(22, 40)
 
-def login(user,password,sleep=0.8,headless=True):
+def login(user,password,institution='UNIVERSIDAD DE ANTIOQUIA',sleep=0.8,headless=True):
     #def login(user,password): → browser, otro, otro
     # MAIN CODE
 
@@ -483,7 +483,7 @@ def login(user,password,sleep=0.8,headless=True):
     h.click('Consulte Aquí')
 
     time.sleep(sleep)
-    h.write('UNIVERSIDAD DE ANTIOQUIA',into='Digite el nombre de la Institución') # name ins
+    h.write(institution,into='Digite el nombre de la Institución') # name ins
 
     time.sleep(sleep)
     h.click('Buscar')
@@ -494,7 +494,7 @@ def login(user,password,sleep=0.8,headless=True):
     time.sleep(sleep)
 
     time.sleep(sleep)
-    h.select('seleccione una','UNIVERSIDAD DE ANTIOQUIA') # name_ins
+    h.select('seleccione una',institution) # name_ins
 
     time.sleep(sleep)
     h.write(user,into='Usuario')                  # user
@@ -1788,11 +1788,12 @@ def to_json(DB,dfg,DIR='InstituLAC'):
         
     return DBJ
 
-def main(user, password, DIR='InstituLAC', CHECKPOINT=True,
-         headless=True, start=None, end=None, COL_Group='',start_time=0):
+def main(user, password, institution='UNIVERSIDAD DE ANTIOQUIA', DIR='InstituLAC', 
+         CHECKPOINT=True,headless=True, start=None, end=None, COL_Group='',
+         start_time=0):
     '''
     '''
-    browser = login(user, password, headless=headless)
+    browser = login(user, password, institution=institution, headless=headless)
     
     LOGIN=True
     if not browser:
