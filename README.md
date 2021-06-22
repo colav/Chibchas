@@ -28,9 +28,9 @@ you can access to the server for the endpoints for example on: http://127.0.1.1:
 depending on the IP and PORT that you are providing to `chibchas`.
 
 ## Console
-To obtain the information of the first two groups and save the output files in `/home/usario/somedir`, use
+To obtain the information of the first two groups and save the output files in `/home/usario/somedir` for InstituLAC official institution name `"UNIVERSIDAD DE ANTIOQUIA"`, use
 ```bash
-chibchas_institulac --gdrive_path=/home/restrepo/tmp  --end=2
+chibchas_institulac --gdrive_path=/home/restrepo/tmp --institution="UNIVERSIDAD DE ANTIOQUIA" --end=2
 ```
 or check `chibchas_institulac --help` for further options. The default `--end` option, save output files for all the avalaible "Avalados" groups.
 
