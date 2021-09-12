@@ -120,11 +120,17 @@ d = {
                 '20': 'V'
 }
 
-def clean_df(df):
-    'remove innecesari collums'
-    c=[x for x in df.columns if x.find('Unnamed:') == -1 and  x.find('Revisar') == -1 and x.find('Avalar integrante') == -1]
-    dfc=df[c]
-    return dfc
+def clean_tables(df):
+    #droplevel
+    try:
+        df = df.droplevel(0,axis=1)
+    except ValueError:
+        pass
+    #ignore firts(NaN) and last(string:resultados) rows
+    df=df[1:-1]
+    #remove unnamed columns and revisar
+    cols = [x for x in df.columns if x.find('Unnamed:') == -1 and  x.find('Revisar') == -1 and x.find('Avalar integrante') == -1]
+    return df[cols]
 
 def rename_col(df,colr,colf):
     df.rename(columns = {colr: colf,}, inplace = True)
@@ -418,7 +424,7 @@ def format_ptt(workbook):
     De antemano, la Vicerrectoría de Investigación agradece su participación en este ejercicio, que resulta de vital importancia para llevar a buen término la Convocatoria de Reconocimiento y Medición de Grupos de Investigación
     '''
     #Final part of the first sheet
-    datos=clean_df(pd.read_excel('https://github.com/restrepo/InstituLAC/raw/main/data/template_data.xlsx'))
+    datos=clean_tables(pd.read_excel('https://github.com/restrepo/InstituLAC/raw/main/data/template_data.xlsx'))
 
     #Capture xlsxwriter object 
     # IMPORTANT → workbook is the same object used in the official document at https://xlsxwriter.readthedocs.io
@@ -624,17 +630,9 @@ def get_DB(browser,DB=[],dfg=pd.DataFrame(),sleep=0.8,DIR='InstituLAC',
             start=dfcg.index[0]
             end=start+1
     #assert dfg.shape[0] == 324
-    # DICT CAT-PRODS-TAB
-    dict_tables_path = str(pathlib.Path(__file__).parent.absolute()) + '/dict_tables.json'
-    with open(dict_tables_path) as file_json:
-       dict_tables=json.loads(file_json.read())    
-    #with open('dict_tables.json') as file_json:
-    #    dict_tables=json.loads(file_json.read())
 
     time.sleep(sleep*2)
 
-    LP = []
-    LR = [] 
     for idx in dfg.index[start:end]:       # TEST
 
         # create db for store things related to group
@@ -654,198 +652,94 @@ def get_DB(browser,DB=[],dfg=pd.DataFrame(),sleep=0.8,DIR='InstituLAC',
         # catch two tables: info grupo and  members
         source=browser.page_source
 
-        #info
+        # Info group
         l_info=pd.read_html(source, match='Nombre Grupo')
         info_g=l_info[3].pivot(columns=0,values=1)
 
-        # STORE INFO_GROUP
+        # Store info group
         DBG['Info_group'] = info_g
-
-        # members
+        # List members
         l_int = pd.read_html(source,attrs={'id':'tblIntegrantes'},header=2)
         mem_g=l_int[0]
 
-        # STORE_MEMBERS
+        # Store list of members
         DBG['Members'] =  mem_g
 
         # Products
-
-        #time.sleep(sleep*5) # time time time !!!
         h.wait_until(lambda: browser.find_element_by_xpath('//td[@id="bodyPrincipal"]//a[text()="Ver productos"]') is not None)
         h.click(browser.find_element_by_xpath('//td[@id="bodyPrincipal"]//a[text()="Ver productos"]'))
 
         # products by belongs to  # time time time
-        #time.sleep(sleep*7)       # time time time
         h.wait_until(lambda: browser.find_element_by_xpath('//*[@id="ProdsPertenecia"]') is not None)
         h.click(browser.find_element_by_xpath('//*[@id="ProdsPertenecia"]'))
 
         time.sleep(sleep)
-        url_products=browser.current_url
+        url_base=browser.current_url
 
-
-        # map all products, store those id categories that amount is different to 0 and id products asociated.
-        # make queries with combinations of categories and products
-        # make urls with diferent combinations of quieries
-        # go to each of urls
-        # load page source
-        # catch table ( or tables) asociated with categories and products
-        # store tables
-
-        report = ''
-
-        list_of_prods =[] #[[cat,prod],[cat,prod]...]
-
-        # map all products and get products and subs diff to cero
-        for i in browser.find_elements_by_xpath('//div[@id="accordionCatgP"]/h3'):
-
-            report += i.text + '\n' 
-            report += i.get_attribute('id') + '\n'     
-
-            time.sleep(sleep)
-            h.click(i)
-
-            # cat
-            cat_ = int(re.findall(r'\d+',i.text)[0])
-
-            # create cat key in dict, for estore diferents products by this categori: 'NC_': {'ART_E':TABLE,
-            #                                                                                 'ART_IMP':TABLE}
-            if cat_ > 0:
-                DBG[i.get_attribute('id')] = {}
-
-
-            for j in browser.find_elements_by_xpath('//div[@aria-labelledby="%s"]/h3' % i.get_attribute('id')):
-
-                report += '\t' + j.text + '\n' 
-                report += '\t' + j.get_attribute('id') + '\n'
-
-                #prod
-                pro_ = int(re.findall(r'\d+', j.text)[0])
-
-                if cat_ > 0 and pro_ > 0:  
-
-                    list_of_prods.append([i.get_attribute('id'),j.get_attribute('id')])
-
-            time.sleep(sleep) 
-            # h.click(a)
-            h.click(i)
-
-        # PAR: products with revisions
-        time.sleep(sleep*3) #DEBUG TIME
-        h.wait_until(lambda: browser.find_element_by_xpath('//*[@id="ProdsAval"]'))
-        h.click(browser.find_element_by_xpath('//*[@id="ProdsAval"]'))
-
-        # NC
-
-        _NC = browser.find_element_by_xpath('//*[@id="NC"]')
-
-        h.click(_NC)
-
-        cat_ = int(re.findall(r'\d+',_NC.text)[0])
-
-        LIB = browser.find_element_by_xpath('//*[@id="LIB"]')
-
-        L = int(re.findall(r'\d+', LIB.text)[0])
-
-        CAP_LIB = browser.find_element_by_xpath('//*[@id="CAP_LIB"]')
-
-        CL = int(re.findall(r'\d+', CAP_LIB.text)[0])
-
-        if (cat_ > 0 and L > 0) or (cat_ > 0 and CL > 0):
-
-            DBG[_NC.get_attribute('id')] = {}
-
-        if (cat_ > 0 and L > 0):
-
-            list_of_prods.append([_NC.get_attribute('id'),LIB.get_attribute('id')])
-
-        if (cat_ > 0 and CL > 0):
-
-            list_of_prods.append([_NC.get_attribute('id'),CAP_LIB.get_attribute('id')])
-
-        # print(report)
-        # print('\n')
-        # print('--------------------------------')
-        time.sleep(sleep*2)
-
-        tables=[]
-
-        for p in range(len(list_of_prods)):
-
-                # make query
-                if list_of_prods[p][0] == 'NC':
-
-                    query='categoria=%s&subcategoria=%s&aval=T' % (list_of_prods[p][0],list_of_prods[p][1])
-
+        # MAP
+        # map products by macro-Cat (prod aval per) diff to cero
+              #[[cat,prod],[cat,prod]...]
+        # MAP
+        # map products by macro-Cat (prod aval per)
+        sleep = 0.8
+        lcp = []
+        for cat in browser.find_elements_by_xpath('//div[@id="accordionCatgP"]/h3'):
+            # exist products
+            id_cat = cat.get_attribute('id')
+            num_prods_cat = int(re.findall(r'\d+',cat.text)[0])
+            if num_prods_cat > 0:
+                time.sleep(sleep)
+                h.click(cat)
+            else:
+                continue
+            for prod in browser.find_elements_by_xpath('//div[@aria-labelledby="%s"]/h3' % cat.get_attribute('id')):
+                # items in products
+                id_prod = prod.get_attribute('id')
+                num_items_prod = int(re.findall(r'\d+',prod.text)[0])
+                if num_items_prod > 0:
+                    lcp.append([id_cat,id_prod])
                 else:
-
-                    query='categoriaP=%s&subcategoriaP=%s&aval=P' % (list_of_prods[p][0],list_of_prods[p][1])
-
-                # make url query
-                url_query = url_products.split('?')[0] + '?' + query + '&' + url_products.split('?')[1]
-
-                # retrieve id asociated tables
-                table_id = dict_tables[list_of_prods[p][0]][list_of_prods[p][1]]
-
-                # go to url product by group
-                time.sleep(sleep)
-
-                browser.get(url_query)
-
-                # load page
-                time.sleep(sleep)
-                page_source = browser.page_source
-
-                # catch tables
-                if isinstance(table_id,str): # case one table
-
-                    # catch title table
-
-                    #title_table = browser.find_element_by_xpath('//div/p[@class="titulo_tabla"]').text 
-                    # cathc table
-                    print(url_query)
-                    time.sleep(sleep*2)
-                    try:
-                        table = pd.read_html(page_source,attrs={'id':table_id}, header=2)[0][1:-1]
-                    except ValueError:
-                        table=None
-
-                    # store table
-                    DBG[list_of_prods[p][0]][list_of_prods[p][1]] = {table_id:table}
-                    # ---- in building ----
-
-                elif isinstance(table_id, list): # case multiple tables
-
-                    DBG[list_of_prods[p][0]][list_of_prods[p][1]] ={}
-
-                    for i in range(len(table_id)):
-
-                        # fix bug
-                        if list_of_prods[p][1] == 'DC_P' and i == 3:
-                            # catch title specific table 
-                            title_table = browser.find_elements_by_xpath('//div/p[@class="titulo_tabla"]')[i].text
-
-                            # catch table software
-                            table = pd.read_html(page_source,attrs={'id':table_id[i]}, header=2)[1][1:-1]
-
-                            # store table
-                            DBG[list_of_prods[p][0]][list_of_prods[p][1]]['DC_DES_P_TABLE'] = table
-
-
-                        # catch title specific table 
-                        title_table = browser.find_elements_by_xpath('//div/p[@class="titulo_tabla"]')[i].text
-
-                        # catch table trasmedia
-                        table = pd.read_html(page_source,attrs={'id':table_id[i]}, header=2)[0][1:-1]
-
-                        # store table
-                        DBG[list_of_prods[p][0]][list_of_prods[p][1]][table_id[i]]=table
-
-
-                        # -----------
+                    continue
+            time.sleep(sleep)
+            h.click(cat)
+        # DBG
+        # build database products by macro for group
+        for cat in lcp:
+            if cat[0] not in DBG.keys():
+                DBG[cat[0]] = {}
+        for prod in lcp:
+            # build query
+            query='categoriaP=%s&subcategoriaP=%s&aval=P' % (prod[0],prod[1])
+            url_query = url_base.split('?')[0] + '?' + query + '&' + url_base.split('?')[1]
+            # do query
+            browser.get(url_query)
+            # wait until complete load
+            h.wait_until(h.Button('Guardar').exists,timeout_secs=20)
+            # load
+            page_source = browser.page_source
+            # detect tables
+            try:
+                tables = pd.read_html(browser.page_source,attrs={'class':'table'})
+            # clean tables
+            except (ValueError, ImportError) as e:
+                tables = [None]
+            try:
+                tables = [clean_tables(t) for t in tables]
+            except AttributeError as e:
+                pass
+            # store table or tables
+            if len(tables)>1:
+                c=0
+                for t in tables:
+                    if t.shape[0] >= 1:
+                        DBG[prod[0]][prod[1]+'_%s' % c] = t
+                        c+=1
+            else:
+                DBG[prod[0]][prod[1]] = tables[0]
+            time.sleep(sleep)
+                            # -----------
+        # store in general DB.
         DB.append(DBG)
-        LP.append(list_of_prods)
-        LR.append(report)
-
         with open(f'{DIR}/DB.pickle', 'wb') as f:
             pickle.dump(DB, f)
 
@@ -891,7 +785,7 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
         format_info(df, writer, '2.Datos de contacto')
 
         # WORKSHEET 1
-        df = clean_df(DBG['Members']) 
+        df = clean_tables(DBG['Members']) 
         eh = DBEH['MEMBERS']
         format_df(df, '3.Integrantes grupo', 1, writer, eh, veh=0) #### veh = 0
 
@@ -903,7 +797,7 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
         var_w4 = 0
 
         try:
-            df=clean_df(DBG['NC_P']['ART_IMP_P']['ART_P_TABLE'])
+            df=clean_tables(DBG['NC_P']['ART_IMP_P'])
 
             #df.to_excel(writer,sheet_name='NC_P',startrow = var_nc+1)
 
@@ -918,7 +812,7 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
             pass
 
         try:
-            df=clean_df(DBG['NC_P']['ART_ELE_P']['ART_E_P_TABLE'])
+            df=clean_tables(DBG['NC_P']['ART_ELE_P'])
 
             #df.to_excel(writer,sheet_name='NC_P',startrow = var_nc)
 
@@ -933,7 +827,7 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
             pass
 
         try:
-            df=clean_df(DBG['NC_P']['NOT_CIE_P']['NOT_CIE_P_TABLE'])
+            df=clean_tables(DBG['NC_P']['NOT_CIE_P'])
 
             #df.to_excel(writer,sheet_name='NC_P',startrow = var_nc)
 
@@ -954,7 +848,7 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
 
         # libros por pertenencia
         try:
-            df=rename_col(clean_df(DBG['NC_P']['LIB_P']['LIB_P_TABLE']),'Título del artículo','Título del libro')
+            df=rename_col(clean_tables(DBG['NC_P']['LIB_P']),'Título del artículo','Título del libro')
 
             #df.to_excel(writer,sheet_name='NC_P',startrow = var_nc)
 
@@ -970,7 +864,7 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
 
         # libros avalados con revisión
         try:
-            df=rename_col(clean_df(DBG['NC']['LIB']['LIB_T_AVAL_TABLE']), 'Título del artículo' ,'Título del libro') 
+            df=rename_col(clean_tables(DBG['NC']['LIB']), 'Título del artículo' ,'Título del libro') 
 
             #df.to_excel(writer,sheet_name='FRH_P',startrow = var_rh)
 
@@ -986,7 +880,7 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
 
         # libros formacion
         try:
-            df=rename_col(clean_df(DBG['ASC_P']['GEN_CONT_IMP_P']['GC_I_P_TABLE_5']),'Título del libro','Título del libro formación') # lib form
+            df=rename_col(clean_tables(DBG['ASC_P']['GEN_CONT_IMP_P']),'Título del libro','Título del libro formación') # lib form
             
             if df.shape[0] != 0:
 
@@ -1013,7 +907,7 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
         var_w6 = 0
 
         try:
-            df=clean_df(DBG['NC_P']['CAP_LIB_P']['CAP_LIB_P_TABLE'])
+            df=clean_tables(DBG['NC_P']['CAP_LIB_P'])
 
             #df.to_excel(writer,sheet_name='NC_P',startrow = var_nc)
 
@@ -1029,7 +923,7 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
 
         # caps avalados con revision
         try:
-            df = clean_df(DBG['NC']['CAP_LIB']['CAP_LIB_T_AVAL_TABLE'])  ### ,veh = 2
+            df = clean_tables(DBG['NC']['CAP_LIB'])  ### ,veh = 2
 
             #df.to_excel(writer,sheet_name='FRH_P',startrow = var_rh)
 
@@ -1045,7 +939,7 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
 
         # traduccion filologica
         try:
-            df=rename_col(clean_df(DBG['NC_P']['TRA_FIL_P']['TRA_FIL_P_TABLE']),'Título del libro', 'Título traducción filologica')
+            df=rename_col(clean_tables(DBG['NC_P']['TRA_FIL_P']),'Título del libro', 'Título traducción filologica')
 
             #df.to_excel(writer,sheet_name='NC_P',startrow = var_nc)
 
@@ -1067,7 +961,7 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
 
         # patentes
         try:
-            df=rename_col(clean_df(DBG['NC_P']['PAT_P']['PAT_P_TABLE']),'Título del artículo','Título de la patente') ###### veh=1
+            df=rename_col(clean_tables(DBG['NC_P']['PAT_P']),'Título del artículo','Título de la patente') ###### veh=1
 
             #df.to_excel(writer,sheet_name='NC_P',startrow = var_nc)
 
@@ -1083,7 +977,7 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
 
         # variedad vegetal
         try:
-            df=clean_df(DBG['NC_P']['VAR_VEG_P']['VV_P_TABLE'])
+            df=clean_tables(DBG['NC_P']['VAR_VEG_P'])
 
             #df.to_excel(writer,sheet_name='NC_P',startrow = var_nc)
 
@@ -1099,7 +993,7 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
 
         # Variedad Animal
         try:
-            df=clean_df(DBG['NC_P']['VAR_ANI_P']['VA_P_TABLE'])
+            df=clean_tables(DBG['NC_P']['VAR_ANI_P'])
 
             #df.to_excel(writer,sheet_name='NC_P',startrow = var_nc)
 
@@ -1115,7 +1009,7 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
 
         # razas pecuarias mejoradas
         try:
-            df=clean_df(DBG['NC_P']['RAZ_PEC_P']['RAZ_PEC_P_TABLE'])
+            df=clean_tables(DBG['NC_P']['RAZ_PEC_P'])
 
             #df.to_excel(writer,sheet_name='NC_P',startrow = var_nc)
 
@@ -1135,7 +1029,7 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
 
         # productos investigacion creacion
         try:
-            df=clean_df(DBG['NC_P']['PRD_INV_ART_P']['PAAD_P_TABLE']) ###### veh = 1
+            df=clean_tables(DBG['NC_P']['PRD_INV_ART_P']) ###### veh = 1
 
             #df.to_excel(writer,sheet_name='NC_P',startrow = var_nc)
 
@@ -1161,7 +1055,7 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
         # diseño industrial
         try:
 
-            df=rename_col(clean_df(DBG['DTI_P']['DIS_IND_P']['DI_P_TABLE']),'Nombre del diseño','Nombre del diseño industrial')
+            df=rename_col(clean_tables(DBG['DTI_P']['DIS_IND_P']),'Nombre del diseño','Nombre del diseño industrial')
 
             #df.to_excel(writer,sheet_name='DTI_P',startrow = var_dt)
 
@@ -1177,7 +1071,7 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
 
         #circuitos integrados
         try:
-            df=rename_col(clean_df(DBG['DTI_P']['CIR_INT_P']['ECI_P_TABLE']),'Nombre del diseño', 'Nombre del diseño circuito')
+            df=rename_col(clean_tables(DBG['DTI_P']['CIR_INT_P']),'Nombre del diseño', 'Nombre del diseño circuito')
 
             #df.to_excel(writer,sheet_name='DTI_P',startrow = var_dt)
 
@@ -1193,7 +1087,7 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
 
         # colecciones
         try:
-            df=clean_df(DBG['DTI_P']['COL_CIENT_P']['COL_CIENT_P_TABLE'])
+            df=clean_tables(DBG['DTI_P']['COL_CIENT_P'])
 
             #df.to_excel(writer,sheet_name='DTI_P',startrow = var_dt)
 
@@ -1210,7 +1104,7 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
 
         # software 
         try:
-            df=rename_col(clean_df(DBG['DTI_P']['SOFT_P']['SF_P_TABLE']),'Nombre del diseño', 'Nombre del diseño de software')
+            df=rename_col(clean_tables(DBG['DTI_P']['SOFT_P']),'Nombre del diseño', 'Nombre del diseño de software')
 
             eh=DBEH['DTI_P']['SOFT_P']['SF_P_TABLE']
 
@@ -1225,7 +1119,7 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
 
         # secreto industrial
         try:
-            df=rename_col(clean_df(DBG['DTI_P']['SEC_IND_P']['SE_P_TABLE']),'Producto','Nombre secreto industrial')
+            df=rename_col(clean_tables(DBG['DTI_P']['SEC_IND_P']),'Producto','Nombre secreto industrial')
 
             #df.to_excel(writer,sheet_name='DTI_P',startrow = var_dt)
 
@@ -1241,7 +1135,7 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
 
         # prototipo insdustrial
         try:
-            df=rename_col(clean_df(DBG['DTI_P']['PRT_IND_P']['PI_P_TABLE']), 'Nombre del diseño', 'Nombre del prototipo')
+            df=rename_col(clean_tables(DBG['DTI_P']['PRT_IND_P']), 'Nombre del diseño', 'Nombre del prototipo')
 
             #df.to_excel(writer,sheet_name='DTI_P',startrow = var_dt)
 
@@ -1257,7 +1151,7 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
 
         # Registro distintivo
         try:
-            df=clean_df(DBG['DTI_P']['SIG_DIS_P']['SD_P_TABLE'])
+            df=clean_tables(DBG['DTI_P']['SIG_DIS_P'])
 
             #df.to_excel(writer,sheet_name='DTI_P',startrow = var_dt)
 
@@ -1274,7 +1168,7 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
         # registros de acuerdo licencias expl obras AAD
         try:
 
-            df=clean_df(DBG['DTI_P']['REG_AAD_P']['AAAD_P_TABLE'])
+            df=clean_tables(DBG['DTI_P']['REG_AAD_P'])
 
             eh=DBEH['DTI_P']['REG_AAD_P']['AAAD_P_TABLE']
 
@@ -1289,7 +1183,7 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
 
         # prod nutracetico
         try:
-            df=rename_col(clean_df(DBG['DTI_P']['NUTRA_P']['NUTRA_P_TABLE']),'Nombre del producto','Nombre del producto nutracetico')
+            df=rename_col(clean_tables(DBG['DTI_P']['NUTRA_P']),'Nombre del producto','Nombre del producto nutracetico')
 
             #df.to_excel(writer,sheet_name='DTI_P',startrow = var_nc)
 
@@ -1306,7 +1200,7 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
 
         # registro cienti
         try:
-            df=clean_df(DBG['DTI_P']['REG_CIENT_P']['REG_CIENT_P_TABLE'])
+            df=clean_tables(DBG['DTI_P']['REG_CIENT_P'])
 
             #df.to_excel(writer,sheet_name='DTI_P',startrow = var_dt)
 
@@ -1324,7 +1218,7 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
         # planta piloto
 
         try:
-            df=clean_df(DBG['DTI_P']['PLT_PIL_P']['PP_P_TABLE'])
+            df=clean_tables(DBG['DTI_P']['PLT_PIL_P'])
 
             #df.to_excel(writer,sheet_name='DTI_P',startrow = var_dt)
 
@@ -1342,7 +1236,7 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
         # protocolo vigilancia epidemologica
 
         try:
-            df=clean_df(DBG['DTI_P']['PROT_VIG_EPID_P']['PROT_VIG_EPID_P_TABLE'])
+            df=clean_tables(DBG['DTI_P']['PROT_VIG_EPID_P'])
 
             #df.to_excel(writer,sheet_name='DTI_P',startrow = var_dt)
 
@@ -1363,7 +1257,7 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
 
         # innovación gestion empresarial
         try:
-            df=rename_col(clean_df(DBG['DTI_P']['INN_GES_EMP_P']['IG_P_TABLE']),'Nombre de la innovación', 'Nombre de la innovación empresarial')
+            df=rename_col(clean_tables(DBG['DTI_P']['INN_GES_EMP_P']),'Nombre de la innovación', 'Nombre de la innovación empresarial')
 
             #df.to_excel(writer,sheet_name='DTI_P',startrow = var_dt)
 
@@ -1381,7 +1275,7 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
 
         # innovacion procesos y procedimiento
         try:
-            df=rename_col(clean_df(DBG['DTI_P']['INN_PROC_P']['IPP_P_TABLE']),'Nombre de la innovación','Nombre de la innovación procesos y procedimientos')
+            df=rename_col(clean_tables(DBG['DTI_P']['INN_PROC_P']),'Nombre de la innovación','Nombre de la innovación procesos y procedimientos')
 
             #df.to_excel(writer,sheet_name='DTI_P',startrow = var_dt)
 
@@ -1398,7 +1292,7 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
 
         # regulaciones normas reglamentos legislaciones
         try:
-            df=rename_col(clean_df(DBG['DTI_P']['REG_NORM_REGL_LEG_P']['RNR_P_TABLE']),'Tipo producto','Nombre regulación')
+            df=rename_col(clean_tables(DBG['DTI_P']['REG_NORM_REGL_LEG_P']),'Tipo producto','Nombre regulación')
 
             #df.to_excel(writer,sheet_name='DTI_P',startrow = var_dt)
 
@@ -1414,7 +1308,7 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
 
         # conceptos tecnicos
         try:
-            df=clean_df(DBG['DTI_P']['CONP_TEC_P']['CONP_TEC_P_TABLE'])
+            df=clean_tables(DBG['DTI_P']['CONP_TEC_P'])
 
             #df.to_excel(writer,sheet_name='DTI_P',startrow = var_dt)
 
@@ -1431,7 +1325,7 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
 
         # empresa base tecnologica
         try:
-            df=rename_col(clean_df(DBG['DTI_P']['EMP_BSE_TEC_P']['EBT_P_TABLE']),'Tipo','Tipo de empresa base tecnologica')
+            df=rename_col(clean_tables(DBG['DTI_P']['EMP_BSE_TEC_P']),'Tipo','Tipo de empresa base tecnologica')
 
             #df.to_excel(writer,sheet_name='DTI_P',startrow = var_dt)
 
@@ -1448,7 +1342,7 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
 
         # empresa de base cultural
         try:
-            df=rename_col(clean_df(DBG['DTI_P']['EMP_CRE_CUL_P']['ICC_P_TABLE']),'Empresa', 'Tipo de empresa base cultural')
+            df=rename_col(clean_tables(DBG['DTI_P']['EMP_CRE_CUL_P']),'Empresa', 'Tipo de empresa base cultural')
 
             #df.to_excel(writer,sheet_name='DTI_P',startrow = var_dt)
 
@@ -1472,7 +1366,7 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
 
         # productos de interes social
         try:
-            df=rename_col(clean_df(DBG['ASC_P']['PASC_P']['PASC_FOR_P_TABLE']),'Nombre','Nombre producto interes social')
+            df=rename_col(clean_tables(DBG['ASC_P']['PASC_P']),'Nombre','Nombre producto interes social')
 
             if df.shape[0] != 0:
 
@@ -1491,7 +1385,7 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
 
         # Proceso de apropiación social del conocimiento resultado del trabajo conjunto 
         try:
-            df=rename_col(clean_df(DBG['ASC_P']['PASC_P']['PASC_TRA_P_TABLE']), 'Nombre','Nombre del Proceso de apropiación social del conocimiento resultado del trabajo conjunto entre un Centro de Ciencia y un grupo de investigación')
+            df=rename_col(clean_tables(DBG['ASC_P']['PASC_P']), 'Nombre','Nombre del Proceso de apropiación social del conocimiento resultado del trabajo conjunto entre un Centro de Ciencia y un grupo de investigación')
 
             if df.shape[0] != 0:
 
@@ -1509,7 +1403,7 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
 
         # Nombre del Proceso de apropiación social del conocimiento para la generación de insumos de política pública y normatividad
         try:
-            df=rename_col(clean_df(DBG['ASC_P']['PASC_P']['PASC_GEN_P_TABLE']),'Nombre','Nombre del Proceso de apropiación social del conocimiento para la generación de insumos de política pública y normatividad')
+            df=rename_col(clean_tables(DBG['ASC_P']['PASC_P']),'Nombre','Nombre del Proceso de apropiación social del conocimiento para la generación de insumos de política pública y normatividad')
 
             if df.shape[0] != 0:
 
@@ -1527,7 +1421,7 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
 
         #Nombre del Proceso de apropiación social del conocimiento para el fortalecimiento de cadenas productivas
         try:
-            df=rename_col(clean_df(DBG['ASC_P']['PASC_P']['PASC_CAD_P_TABLE']),'Nombre', 'Nombre del Proceso de apropiación social del conocimiento para el fortalecimiento de cadenas productivas')
+            df=rename_col(clean_tables(DBG['ASC_P']['PASC_P']),'Nombre', 'Nombre del Proceso de apropiación social del conocimiento para el fortalecimiento de cadenas productivas')
 
             if df.shape[0] != 0:
 
@@ -1546,7 +1440,7 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
         # Divulgacion
         # Piezas digitales
         try:
-            df=rename_col(clean_df(DBG['ASC_P']['DC_P']['DC_CD_P_TABLE']),'Título del proyecto','Título del proyecto para la generación de piezas digitales')
+            df=rename_col(clean_tables(DBG['ASC_P']['DC_P']),'Título del proyecto','Título del proyecto para la generación de piezas digitales')
 
             if df.shape[0] != 0:
 
@@ -1564,7 +1458,7 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
 
         # textuales
         try:
-            df=rename_col(clean_df(DBG['ASC_P']['DC_P']['DC_CON_P_TABLE']),'Título del proyecto','Título del proyecto para la generación de piezas Textuales (incluyendo cartillas, periódicos, revistas, etc.), Producción de estrategias transmediáticas y Desarrollos web')
+            df=rename_col(clean_tables(DBG['ASC_P']['DC_P']),'Título del proyecto','Título del proyecto para la generación de piezas Textuales (incluyendo cartillas, periódicos, revistas, etc.), Producción de estrategias transmediáticas y Desarrollos web')
 
             if df.shape[0] != 0:
 
@@ -1582,7 +1476,7 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
 
         # produccion estrategia trasmediatica
         try:
-            df=rename_col(clean_df(DBG['ASC_P']['DC_P']['DC_TRA_P_TABLE']), 'Título del proyecto','Título del proyecto estrategia trasmediatica')
+            df=rename_col(clean_tables(DBG['ASC_P']['DC_P']), 'Título del proyecto','Título del proyecto estrategia trasmediatica')
 
             if df.shape[0] != 0:
 
@@ -1600,7 +1494,7 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
 
         # desarrollo web
         try:
-            df=rename_col(clean_df(DBG['ASC_P']['DC_P']['DC_DES_P_TABLE']),'Título del proyecto','Título del proyecto desarrollo web')
+            df=rename_col(clean_tables(DBG['ASC_P']['DC_P']),'Título del proyecto','Título del proyecto desarrollo web')
 
             if df.shape[0] != 0:
 
@@ -1621,12 +1515,11 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
         # ---------------w12--------------------
 
         # FRH
-
         var_w12 = 0
 
         # tesis doctorado
         try:
-            df=rename_col(clean_df(DBG['FRH_P']['TES_DOC_P']['TD_P_TABLE']), 'Título','Título de la tesis de doctorado')  ### ,veh = 2
+            df=rename_col(clean_tables(DBG['FRH_P']['TES_DOC_P']), 'Título','Título de la tesis de doctorado')  ### ,veh = 2
 
             #df.to_excel(writer,sheet_name='FRH_P',startrow = var_rh)
 
@@ -1642,7 +1535,7 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
 
         # tesis maestria
         try:
-            df=rename_col(clean_df(DBG['FRH_P']['TES_MAST_P']['TM_P_TABLE']),'Título','Título del trabajo de grado de maestría') ### veh = 2
+            df=rename_col(DBG['FRH_P']['TES_MAST_P'],'Título','Título del trabajo de grado de maestría') ### veh = 2
 
             #df.to_excel(writer,sheet_name='FRH_P',startrow = var_rh)
 
@@ -1657,7 +1550,7 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
             pass
         # tesis pregrado
         try:
-            df=rename_col(clean_df(DBG['FRH_P']['TES_PREG_P']['TP_P_TABLE']),'Título','Título del trabajo de grado de pregrado') ### veh = 2
+            df=rename_col(clean_tables(DBG['FRH_P']['TES_PREG_P']),'Título','Título del trabajo de grado de pregrado') ### veh = 2
 
             #df.to_excel(writer,sheet_name='FRH_P',startrow = var_rh)
 
@@ -1673,7 +1566,7 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
 
         # asesoria programa academico
         try:
-            df=rename_col(clean_df(DBG['FRH_P']['ASE_PRG_ACA_P']['APGA_P_TABLE']),'Tipo','Nombre programa academico creado') 
+            df=rename_col(clean_tables(DBG['FRH_P']['ASE_PRG_ACA_P']),'Tipo','Nombre programa academico creado') 
 
             eh=DBEH['FRH_P']['ASE_PRG_ACA_P']['APGA_P_TABLE']
 
@@ -1687,7 +1580,7 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
 
         # asesoria creacion de cursos
         try:
-            df=rename_col(clean_df(DBG['FRH_P']['ASE_CRE_CUR_P']['ACC_P_TABLE']),'Tipo','Nombre curso creado')
+            df=rename_col(clean_tables(DBG['FRH_P']['ASE_CRE_CUR_P']),'Tipo','Nombre curso creado')
 
             eh=DBEH['FRH_P']['ASE_CRE_CUR_P']['ACC_P_TABLE']
 
@@ -1701,7 +1594,7 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
 
         # programa ondas
         try:
-            df=rename_col(clean_df(DBG['FRH_P']['ASE_PRG_ONDAS_P']['APO_P_TABLE']),'Integrante','Integrante programa ondas')
+            df=rename_col(clean_tables(DBG['FRH_P']['ASE_PRG_ONDAS_P']),'Integrante','Integrante programa ondas')
 
             eh=DBEH['FRH_P']['ASE_PRG_ONDAS_P']['APO_P_TABLE']
 
@@ -1722,7 +1615,7 @@ def dummy_fix_df(DB):
         for k in list(DB[i].keys())[2:]:
             for kk in  DB[i][k].keys():
                 #print(i,k,kk)
-                if list(DB[i][k][kk].values())[0] is None:
+                if DB[i][k][kk] is None:
                     nones=True
                     DB[i][k][kk]={kk: pd.DataFrame()} 
     return DB,nones
@@ -1774,13 +1667,12 @@ def to_json(DB,dfg,DIR='InstituLAC'):
 
         for k in [x for x in list(DB[i].keys()) if x not in ['Info_group','Members','Group']]:
             for kk in DB[i][k].keys():
-                for kkk in DB[i][k][kk].keys():
-                    #print( f'{k}-{kk}{nk}' ) 
-                    df=DB[i][k][kk][kkk]
-                    if df is not None and not df.empty:
-                        nk=re.sub('[A-Z\_]','',kkk)
-                        cs=[c for c in df.columns if c.find('Unnamed:')==-1 and c!='Revisar']
-                        db[f'{k}-{kk}{nk}']=df[cs].fillna('').to_dict('records')
+                #print( f'{k}-{kk}{nk}' ) 
+                df=DB[i][k][kk]
+                if df is not None and not df.empty:
+                    nk=re.sub('[A-Z\_]','',kk)
+                    cs=[c for c in df.columns if c.find('Unnamed:')==-1 and c!='Revisar']
+                    db[f'{k}-{kk}{nk}']=df[cs].fillna('').to_dict('records')
         DBJ.append(db)
         
     with open(f'{DIR}/DB.json', 'w') as outfile:
