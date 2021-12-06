@@ -621,7 +621,7 @@ def get_groups(browser,DIR='InstituLAC',sleep=0.8):
         pickle.dump(dfg, f)        
     return browser,dfg
 
-def get_DB(browser,DB=[],dfg=pd.DataFrame(),sleep=0.8,DIR='InstituLAC',
+def get_DB(browser,target_data,DB=[],dfg=pd.DataFrame(),sleep=0.8,DIR='InstituLAC',
            start=None,end=None,COL_Group='',start_time=0):
     os.makedirs(DIR,exist_ok=True)
     if dfg.empty:
@@ -674,11 +674,26 @@ def get_DB(browser,DB=[],dfg=pd.DataFrame(),sleep=0.8,DIR='InstituLAC',
         h.wait_until(lambda: browser.find_element_by_xpath('//td[@id="bodyPrincipal"]//a[text()="Ver productos"]') is not None)
         h.click(browser.find_element_by_xpath('//td[@id="bodyPrincipal"]//a[text()="Ver productos"]'))
 
-        # Target products = ALL products: no aval, aval, aval pert (Macro Categories)
-        target_data = [('//*[@id="ProdsNoAval"]', '//div[@id="accordionCatgNoAval"]/h3', 'categoriaNoAval=%s&subcategoriaNoAval=%s&aval=F'),
+        # Target products = ALL products: no aval, aval, aval pert (Categories)
+
+        _target_data = [('//*[@id="ProdsNoAval"]', '//div[@id="accordionCatgNoAval"]/h3', 'categoriaNoAval=%s&subcategoriaNoAval=%s&aval=F'),
                        ('//*[@id="ProdsAval"]','//div[@id="accordionCatg"]/h3','categoria=%s&subcategoria=%s&aval=T'),
                        ('//*[@id="ProdsPertenecia"]','//div[@id="accordionCatgP"]/h3','categoriaP=%s&subcategoriaP=%s&aval=P')
                       ]
+        
+        if target_data == 'NoAval':
+            target_data = target_data = _target_data[0:1]
+            print('map NoAvalProds')
+        elif target_data == 'Aval':
+            target_data = _target_data[1:2]
+            print('map institulac NoAvalProds')
+        elif target_data == 'Pert':
+            target_data = _target_data[2:]
+            print('map Pert institulac prods')
+        elif target_data == 'All':
+            target_data = _target_data
+            print('map all institulac prods')
+        
         lcp = [] # list of categories and prods by cat dif to cero e.g. [[NC_NO_AVAL,ART_IMP_NO_AVAL],[NC,ART_IMP]...]
         for i in target_data:
             # print('#####')####
@@ -1697,7 +1712,7 @@ def to_json(DB,dfg,DIR='InstituLAC'):
         
     return DBJ
 
-def main(user, password, institution='UNIVERSIDAD DE ANTIOQUIA', DIR='InstituLAC', 
+def main(user, password,target_data='Pert', institution='UNIVERSIDAD DE ANTIOQUIA', DIR='InstituLAC', 
          CHECKPOINT=True,headless=True, start=None, end=None, COL_Group='',
          start_time=0):
     '''
@@ -1722,7 +1737,7 @@ def main(user, password, institution='UNIVERSIDAD DE ANTIOQUIA', DIR='InstituLAC
     if end and start and end < start:
         sys.exit('ERROR! end<=start')
 
-    DB, dfg = get_DB(browser, DB=DB, dfg=dfg, DIR=DIR,
+    DB, dfg = get_DB(browser,target_data, DB=DB, dfg=dfg, DIR=DIR,
                      start=start, end=end, COL_Group=COL_Group, start_time=start_time)
 
     DB, nones = dummy_fix_df(DB)
