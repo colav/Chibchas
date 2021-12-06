@@ -9,6 +9,7 @@ import sys
 parser = argparse.ArgumentParser(description='Chibchas Institulac')
 parser.add_argument('--gdrive_path', type=str,required=True,
                     help='Google drive mount point path to save the data')
+parser.add_argument('--target_data',type=str, default='Pert', help='target product from institulac:NoAval, Aval, Pert or All')
 parser.add_argument('--institution', type=str, default='UNIVERSIDAD DE ANTIOQUIA',
                     help='''InstituLAC official institution Name in login page. 
                            DEFAULT="UNIVERSIDAD DE ANTIOQUIA"''')
@@ -45,7 +46,7 @@ if __name__=='__main__':
     for n in range(max_tries):
         try:
             #Set end=None to reach the last element
-            LOGIN = main(user,password,institution=args.institution,DIR=tmp_path,
+            LOGIN = main(user,password,target_data=args.target_data, institution=args.institution,DIR=tmp_path,
                            CHECKPOINT=True,headless=args.headless,
                            start=args.start,end=args.end,COL_Group=args.COL_Group,
                            start_time=time.time())
