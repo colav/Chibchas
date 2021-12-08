@@ -86,7 +86,7 @@ def main():
             'Flask-Bootstrap',
             'html5lib',
             'pandas',
-            'numpy==1.14.5',
+            'numpy==1.17.3',
             'helium',
             'xlsxwriter',
             'lxml',
