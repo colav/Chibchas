@@ -18,9 +18,8 @@ pd.set_option("max_rows",100)
 #pd.set_option("display.max_columns",100)
 pd.set_option("max_colwidth",1000)
 
-def get_info(df,cod_gr):                               
+def get_info(df,cod_gr):
 
-    # fix bug 
     # nombre_lider missing
     try:
         nombre_lider = df['Nombre Líder'].dropna().iloc[0]
@@ -622,7 +621,7 @@ def get_groups(browser,DIR='InstituLAC',sleep=0.8):
         pickle.dump(dfg, f)        
     return browser,dfg
 
-def get_DB(browser,DB=[],dfg=pd.DataFrame(),sleep=0.8,DIR='InstituLAC',
+def get_DB(browser,target_data,DB=[],dfg=pd.DataFrame(),sleep=0.8,DIR='InstituLAC',
            start=None,end=None,COL_Group='',start_time=0):
     os.makedirs(DIR,exist_ok=True)
     if dfg.empty:
@@ -638,11 +637,11 @@ def get_DB(browser,DB=[],dfg=pd.DataFrame(),sleep=0.8,DIR='InstituLAC',
     #assert dfg.shape[0] == 324
 
     time.sleep(sleep*2)
-
     for idx in dfg.index[start:end]:       # TEST
 
         # create db for store things related to group
-        DBG = {}
+        DBG = {} #  HERE V1. DBG.keys = [cat1,cat2,...,catN]
+                 #  DBG['cat1'].keys = [prod1bycat,...prodnbycat]
 
         # part info group
         print(dfg.loc[idx,'Nombre del grupo'])
@@ -675,47 +674,74 @@ def get_DB(browser,DB=[],dfg=pd.DataFrame(),sleep=0.8,DIR='InstituLAC',
         h.wait_until(lambda: browser.find_element_by_xpath('//td[@id="bodyPrincipal"]//a[text()="Ver productos"]') is not None)
         h.click(browser.find_element_by_xpath('//td[@id="bodyPrincipal"]//a[text()="Ver productos"]'))
 
-        # products by belongs to  # time time time
-        h.wait_until(lambda: browser.find_element_by_xpath('//*[@id="ProdsPertenecia"]') is not None)
-        h.click(browser.find_element_by_xpath('//*[@id="ProdsPertenecia"]'))
+        # Target products = ALL products: no aval, aval, aval pert (Categories)
 
-        time.sleep(sleep)
-        url_base=browser.current_url
-
-        # MAP
-        # map products by macro-Cat (prod aval per) diff to cero
-              #[[cat,prod],[cat,prod]...]
-        # MAP
-        # map products by macro-Cat (prod aval per)
-        sleep = 0.8
-        lcp = []
-        for cat in browser.find_elements_by_xpath('//div[@id="accordionCatgP"]/h3'):
-            # exist products
-            id_cat = cat.get_attribute('id')
-            num_prods_cat = int(re.findall(r'\d+',cat.text)[0])
-            if num_prods_cat > 0:
-                time.sleep(sleep)
-                h.click(cat)
-            else:
-                continue
-            for prod in browser.find_elements_by_xpath('//div[@aria-labelledby="%s"]/h3' % cat.get_attribute('id')):
-                # items in products
-                id_prod = prod.get_attribute('id')
-                num_items_prod = int(re.findall(r'\d+',prod.text)[0])
-                if num_items_prod > 0:
-                    lcp.append([id_cat,id_prod])
+        _target_data = [('//*[@id="ProdsNoAval"]', '//div[@id="accordionCatgNoAval"]/h3', 'categoriaNoAval=%s&subcategoriaNoAval=%s&aval=F'),
+                       ('//*[@id="ProdsAval"]','//div[@id="accordionCatg"]/h3','categoria=%s&subcategoria=%s&aval=T'),
+                       ('//*[@id="ProdsPertenecia"]','//div[@id="accordionCatgP"]/h3','categoriaP=%s&subcategoriaP=%s&aval=P')
+                      ]
+        
+        if target_data == 'NoAval':
+            target_data = target_data = _target_data[0:1]
+            print('map NoAvalProds')
+        elif target_data == 'Aval':
+            target_data = _target_data[1:2]
+            print('map institulac NoAvalProds')
+        elif target_data == 'Pert':
+            target_data = _target_data[2:]
+            print('map Pert institulac prods')
+        elif target_data == 'All':
+            target_data = _target_data
+            print('map all institulac prods')
+        
+        lcp = [] # list of categories and prods by cat dif to cero e.g. [[NC_NO_AVAL,ART_IMP_NO_AVAL],[NC,ART_IMP]...]
+        for i in target_data:
+            # print('#####')####
+            h.wait_until(lambda: browser.find_element_by_xpath(i[0]) is not None)
+            h.click(browser.find_element_by_xpath(i[0]))
+            time.sleep(sleep)
+            url_base=browser.current_url
+            # MAP
+            # map products by macro-Cat (prod aval per) diff to cero
+            sleep = 0.8
+            for cat in browser.find_elements_by_xpath(i[1]):
+                # exist products
+                id_cat = cat.get_attribute('id')
+                #print(cat.text,id_cat)
+                num_prods_cat = int(re.findall(r'\d+',cat.text)[0])
+                if num_prods_cat > 0:
+                    time.sleep(sleep)
+                    h.click(cat)
                 else:
                     continue
-            time.sleep(sleep)
-            h.click(cat)
+                for prod in browser.find_elements_by_xpath('//div[@aria-labelledby="%s"]/h3' % cat.get_attribute('id')):
+                    # items in products
+                    #h.click(cat)
+                    id_prod = prod.get_attribute('id')
+                    #print('           ',prod.text,id_prod)
+                    #print(prod)
+                    num_items_prod = int(re.findall(r'\d+',prod.text)[0])
+                    if num_items_prod > 0:
+                        lcp.append([id_cat,id_prod])
+                    else:
+                        continue
+                time.sleep(sleep)
+                h.click(cat)
         # DBG
-        # build database products by macro for group
+        # build database
         for cat in lcp:
             if cat[0] not in DBG.keys():
                 DBG[cat[0]] = {}
         for prod in lcp:
-            # build query
-            query='categoriaP=%s&subcategoriaP=%s&aval=P' % (prod[0],prod[1])
+            # build query by case no aval, aval rev, pert
+            
+            if 'NO_AV' in prod[0]:
+                query='categoriaNoAval=%s&subcategoriaNoAval=%s&aval=F' % (prod[0],prod[1])
+            elif '_P' in prod[0]:
+                query='categoriaP=%s&subcategoriaP=%s&aval=P' % (prod[0],prod[1])
+            else:
+                query='categoria=%s&subcategoria=%s&aval=T' % (prod[0],prod[1])
+            # HERE
             url_query = url_base.split('?')[0] + '?' + query + '&' + url_base.split('?')[1]
             # do query
             browser.get(url_query)
@@ -743,14 +769,14 @@ def get_DB(browser,DB=[],dfg=pd.DataFrame(),sleep=0.8,DIR='InstituLAC',
             else:
                 DBG[prod[0]][prod[1]] = tables[0]
             time.sleep(sleep)
-                            # -----------
+        
         # store in general DB.
         DB.append(DBG)
         with open(f'{DIR}/DB.pickle', 'wb') as f:
             pickle.dump(DB, f)
 
         print(time.time()-start_time)
-
+    
     browser.close()    
     return DB,dfg
 
@@ -1614,7 +1640,7 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
         #----------------w12---------------------------
         writer.save()
 
-
+# HERE 
 def dummy_fix_df(DB):
     nones=False
     for i in range(len(DB)):
@@ -1649,7 +1675,7 @@ def checkpoint(DIR='InstituLAC',start=None,CHECKPOINT=True):
     except:
         CHECKPOINT=False
         return RETURN+(CHECKPOINT,)        
-
+# HERE
 def to_json(DB,dfg,DIR='InstituLAC'):
     DFG=dfg.copy().reset_index(drop=True)
     DBJ=[]
@@ -1686,7 +1712,7 @@ def to_json(DB,dfg,DIR='InstituLAC'):
         
     return DBJ
 
-def main(user, password, institution='UNIVERSIDAD DE ANTIOQUIA', DIR='InstituLAC', 
+def main(user, password,target_data='Pert', institution='UNIVERSIDAD DE ANTIOQUIA', DIR='InstituLAC', 
          CHECKPOINT=True,headless=True, start=None, end=None, COL_Group='',
          start_time=0):
     '''
@@ -1711,7 +1737,7 @@ def main(user, password, institution='UNIVERSIDAD DE ANTIOQUIA', DIR='InstituLAC
     if end and start and end < start:
         sys.exit('ERROR! end<=start')
 
-    DB, dfg = get_DB(browser, DB=DB, dfg=dfg, DIR=DIR,
+    DB, dfg = get_DB(browser,target_data, DB=DB, dfg=dfg, DIR=DIR,
                      start=start, end=end, COL_Group=COL_Group, start_time=start_time)
 
     DB, nones = dummy_fix_df(DB)
@@ -1721,3 +1747,4 @@ def main(user, password, institution='UNIVERSIDAD DE ANTIOQUIA', DIR='InstituLAC
     DBJ=to_json(DB, dfg, DIR=DIR)
     
     return LOGIN
+    
