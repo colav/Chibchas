@@ -696,7 +696,8 @@ def get_DB(browser,target_data,DB=[],dfg=pd.DataFrame(),sleep=0.8,DIR='InstituLA
         
         lcp = [] # list of categories and prods by cat dif to cero e.g. [[NC_NO_AVAL,ART_IMP_NO_AVAL],[NC,ART_IMP]...]
         for i in target_data:
-            # print('#####')####
+            print('#####')####
+            time.sleep(sleep)
             h.wait_until(lambda: browser.find_element_by_xpath(i[0]) is not None)
             h.click(browser.find_element_by_xpath(i[0]))
             time.sleep(sleep)
@@ -707,11 +708,12 @@ def get_DB(browser,target_data,DB=[],dfg=pd.DataFrame(),sleep=0.8,DIR='InstituLA
             for cat in browser.find_elements_by_xpath(i[1]):
                 # exist products
                 id_cat = cat.get_attribute('id')
-                #print(cat.text,id_cat)
+                #print(cat.text,'----',id_cat)
                 num_prods_cat = int(re.findall(r'\d+',cat.text)[0])
                 if num_prods_cat > 0:
                     time.sleep(sleep)
                     h.click(cat)
+                    print(cat.text,'----',id_cat)
                 else:
                     continue
                 for prod in browser.find_elements_by_xpath('//div[@aria-labelledby="%s"]/h3' % cat.get_attribute('id')):
@@ -723,6 +725,7 @@ def get_DB(browser,target_data,DB=[],dfg=pd.DataFrame(),sleep=0.8,DIR='InstituLA
                     num_items_prod = int(re.findall(r'\d+',prod.text)[0])
                     if num_items_prod > 0:
                         lcp.append([id_cat,id_prod])
+                        print('           ',prod.text,id_prod)
                     else:
                         continue
                 time.sleep(sleep)
@@ -1746,5 +1749,4 @@ def main(user, password,target_data='Pert', institution='UNIVERSIDAD DE ANTIOQUI
     to_excel(DB, dfg, DIR=DIR)
     DBJ=to_json(DB, dfg, DIR=DIR)
     
-    return LOGIN
-    
+    return LOGIN  
