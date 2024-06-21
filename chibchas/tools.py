@@ -14,9 +14,10 @@ import helium as h
 from selenium.common.exceptions import NoSuchElementException
 import pathlib
 
-pd.set_option("max_rows",100)
-#pd.set_option("display.max_columns",100)
-pd.set_option("max_colwidth",1000)
+
+pd.options.display.max_rows = 100
+pd.options.display.max_colwidth = 1000
+
 
 def get_info(df,cod_gr):
 
