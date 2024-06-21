@@ -54,7 +54,7 @@ def main():
         name="Chibchas",
 
         # Version number (initial):
-        version="0.2.13-beta",
+        version="0.2.14-beta",
 
         # Application author details:
         author="Colav",
@@ -82,11 +82,11 @@ def main():
         # Dependent packages (distributions)
         install_requires=[
             'flask-wtf',
-            'wtforms==2.3.3',
+            'wtforms',
             'Flask-Bootstrap',
             'html5lib',
             'pandas',
-            'numpy==1.17.3',
+            'numpy',
             'helium',
             'xlsxwriter',
             'lxml',
