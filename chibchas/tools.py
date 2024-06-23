@@ -12,6 +12,7 @@ import json
 import pandas as pd
 import helium as h
 from selenium.common.exceptions import NoSuchElementException
+from selenium.webdriver.common.by import By
 import pathlib
 
 
@@ -501,7 +502,7 @@ def login(user,password,institution='UNIVERSIDAD DE ANTIOQUIA',sleep=0.8,headles
     h.click('Buscar')
 
     time.sleep(sleep)
-    h.click(browser.find_element_by_id('list_instituciones'))
+    h.click(browser.find_element(By.ID, 'list_instituciones'))
 
     time.sleep(sleep)
 
@@ -529,19 +530,19 @@ def login(user,password,institution='UNIVERSIDAD DE ANTIOQUIA',sleep=0.8,headles
     new_cookie['expiry'] = int(time_expire)
 
     # delete cookie sites
-    browser.delete_all_cookies()
+    # browser.delete_all_cookies()
 
     # add new cookie
-    browser.add_cookie(new_cookie)
-    try:
-        error=browser.find_element_by_class_name("error")
-        if error.text.lower().find('fallidos')>-1:        
-            print("ERROR! Bad login or password")
-            return False
-        else:
-            pass
-    except NoSuchElementException:
-        pass  
+    # browser.add_cookie(new_cookie)
+    # try:
+        # error=browser.find_element(By.CLASS_NAME, "error")
+        # if error.text.lower().find('fallidos')>-1:        
+            # print("ERROR! Bad login or password")
+            # return False
+        # else:
+            # pass
+    # except NoSuchElementException:
+        # pass  
 
     # navigation 1
     time.sleep(sleep)
@@ -558,10 +559,10 @@ def login(user,password,institution='UNIVERSIDAD DE ANTIOQUIA',sleep=0.8,headles
     # list of total groups
     #select max results per page
     h.wait_until(h.Text('Ver Reporte').exists)
-    h.click(browser.find_element_by_xpath('//table[@id="grupos_avalados"]//select[@name="maxRows"]'))
+    h.click(browser.find_element(By.XPATH, '//table[@id="grupos_avalados"]//select[@name="maxRows"]'))
 
     time.sleep(sleep)
-    h.select(browser.find_element_by_xpath('//table[@id="grupos_avalados"]//select[@name="maxRows"]'),'100')
+    h.select(browser.find_element(By.XPATH, '//table[@id="grupos_avalados"]//select[@name="maxRows"]'),'100')
     return browser
 
 def get_groups(browser,DIR='InstituLAC',sleep=0.8):
@@ -601,12 +602,12 @@ def get_groups(browser,DIR='InstituLAC',sleep=0.8):
             print(dfgp.columns,dfgp.shape)
 
             # catch urls
-            url=[a.get_attribute('href') for a in browser.find_elements_by_xpath('//table[@id="grupos_avalados"]//td[5]/a')]
+            url=[a.get_attribute('href') for a in browser.find_elements(By.XPATH, '//table[@id="grupos_avalados"]//td[5]/a')]
             dfgp['Revisar'] = url
             dfg=dfg.append(dfgp)
 
             # click next page. this instruction rise error of the end. 
-            h.click(browser.find_element_by_xpath('//table[@id="grupos_avalados"]//tr/td[3]/a'))
+            h.click(browser.find_element(By.XPATH, '//table[@id="grupos_avalados"]//tr/td[3]/a'))
 
         except NoSuchElementException as e:
 
@@ -672,8 +673,8 @@ def get_DB(browser,target_data,DB=[],dfg=pd.DataFrame(),sleep=0.8,DIR='InstituLA
         DBG['Members'] =  mem_g
 
         # Products
-        h.wait_until(lambda: browser.find_element_by_xpath('//td[@id="bodyPrincipal"]//a[text()="Ver productos"]') is not None)
-        h.click(browser.find_element_by_xpath('//td[@id="bodyPrincipal"]//a[text()="Ver productos"]'))
+        h.wait_until(lambda: browser.find_element(By.XPATH, '//td[@id="bodyPrincipal"]//a[text()="Ver productos"]') is not None)
+        h.click(browser.find_element(By.XPATH, '//td[@id="bodyPrincipal"]//a[text()="Ver productos"]'))
 
         # Target products = ALL products: no aval, aval, aval pert (Categories)
 
@@ -699,14 +700,14 @@ def get_DB(browser,target_data,DB=[],dfg=pd.DataFrame(),sleep=0.8,DIR='InstituLA
         for i in target_data:
             print('#####')####
             time.sleep(sleep)
-            h.wait_until(lambda: browser.find_element_by_xpath(i[0]) is not None)
-            h.click(browser.find_element_by_xpath(i[0]))
+            h.wait_until(lambda: browser.find_element(By.XPATH, i[0]) is not None)
+            h.click(browser.find_element(By.XPATH, i[0]))
             time.sleep(sleep)
             url_base=browser.current_url
             # MAP
             # map products by macro-Cat (prod aval per) diff to cero
             sleep = 0.8
-            for cat in browser.find_elements_by_xpath(i[1]):
+            for cat in browser.find_elements(By.XPATH, i[1]):
                 # exist products
                 id_cat = cat.get_attribute('id')
                 #print(cat.text,'----',id_cat)
@@ -717,7 +718,7 @@ def get_DB(browser,target_data,DB=[],dfg=pd.DataFrame(),sleep=0.8,DIR='InstituLA
                     print(cat.text,'----',id_cat)
                 else:
                     continue
-                for prod in browser.find_elements_by_xpath('//div[@aria-labelledby="%s"]/h3' % cat.get_attribute('id')):
+                for prod in browser.find_elements(By.XPATH, '//div[@aria-labelledby="%s"]/h3' % cat.get_attribute('id')):
                     # items in products
                     #h.click(cat)
                     id_prod = prod.get_attribute('id')
