@@ -1,5 +1,6 @@
 import pickle
 from datetime import datetime
+from datetime import date
 import re
 import time
 import getpass
@@ -14,7 +15,7 @@ import helium as h
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.by import By
 import pathlib
-
+from selenium.webdriver.firefox.options import Options
 
 pd.options.display.max_rows = 100
 pd.options.display.max_colwidth = 1000
@@ -489,7 +490,9 @@ def login(user,password,institution='UNIVERSIDAD DE ANTIOQUIA',sleep=0.8,headles
     # passw=
 
     # login
-    browser = h.start_firefox('https://scienti.minciencias.gov.co/institulac2-war/',headless=headless)
+    options = Options()
+    options.binary_location = "/snap/firefox/current/usr/lib/firefox/firefox"
+    browser = h.start_firefox('https://scienti.minciencias.gov.co/institulac2-war/',headless=headless,options=options)
 
     #browser = h.start_firefox('https://scienti.minciencias.gov.co/institulac2-war/')
     time.sleep(sleep)
@@ -524,9 +527,12 @@ def login(user,password,institution='UNIVERSIDAD DE ANTIOQUIA',sleep=0.8,headles
 
     # get current cookie and store
     new_cookie=browser.get_cookies()[0]
+    current_date = date.today()
 
+    # Use strftime() to format the date and extract the year
+    current_year = current_date.strftime("%Y")
     # create new_cookie with time_expire
-    time_expire = (datetime(2022,1,1) - datetime(1970,1,1)).total_seconds()
+    time_expire = (datetime(int(current_year)+1,1,1) - datetime(1970,1,1)).total_seconds()
     new_cookie['expiry'] = int(time_expire)
 
     # delete cookie sites
@@ -604,7 +610,7 @@ def get_groups(browser,DIR='InstituLAC',sleep=0.8):
             # catch urls
             url=[a.get_attribute('href') for a in browser.find_elements(By.XPATH, '//table[@id="grupos_avalados"]//td[5]/a')]
             dfgp['Revisar'] = url
-            dfg=dfg.append(dfgp)
+            dfg=dfg._append(dfgp)
 
             # click next page. this instruction rise error of the end. 
             h.click(browser.find_element(By.XPATH, '//table[@id="grupos_avalados"]//tr/td[3]/a'))
@@ -782,7 +788,7 @@ def get_DB(browser,target_data,DB=[],dfg=pd.DataFrame(),sleep=0.8,DIR='InstituLA
 
         print(time.time()-start_time)
     
-    browser.close()    
+    browser.quit()  
     return DB,dfg
 
 def to_excel(DB,dfg,DIR='InstituLAC'):
@@ -1643,7 +1649,7 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
 
             pass
         #----------------w12---------------------------
-        writer.save()
+        writer.close()
 
 # HERE 
 def dummy_fix_df(DB):
