@@ -431,7 +431,7 @@ def format_ptt(workbook):
     De antemano, la Vicerrectoría de Investigación agradece su participación en este ejercicio, que resulta de vital importancia para llevar a buen término la Convocatoria de Reconocimiento y Medición de Grupos de Investigación
     '''
     #Final part of the first sheet
-    datos=clean_df(pd.read_excel('https://github.com/restrepo/InstituLAC/raw/main/data/template_data.xlsx'))
+    datos=clean_df(pd.read_excel(str(pathlib.Path(__file__).parent.absolute()) + '/templates/template_data.xlsx'))
 
     #Capture xlsxwriter object 
     # IMPORTANT → workbook is the same object used in the official document at https://xlsxwriter.readthedocs.io
@@ -685,7 +685,6 @@ def get_DB(browser,target_data,DB=[],dfg=pd.DataFrame(),sleep=0.8,DIR='InstituLA
                        ('//*[@id="ProdsAval"]','//div[@id="accordionCatg"]/h3','categoria=%s&subcategoria=%s&aval=T'),
                        ('//*[@id="ProdsPertenecia"]','//div[@id="accordionCatgP"]/h3','categoriaP=%s&subcategoriaP=%s&aval=P')
                       ]
-        
         if target_data == 'NoAval':
             target_data = target_data = _target_data[0:1]
             print('map NoAvalProds')
@@ -704,6 +703,7 @@ def get_DB(browser,target_data,DB=[],dfg=pd.DataFrame(),sleep=0.8,DIR='InstituLA
             print('#####')####
             time.sleep(sleep)
             h.wait_until(lambda: browser.find_element(By.XPATH, i[0]) is not None)
+            time.sleep(sleep)
             h.click(browser.find_element(By.XPATH, i[0]))
             time.sleep(sleep)
             url_base=browser.current_url
@@ -713,7 +713,7 @@ def get_DB(browser,target_data,DB=[],dfg=pd.DataFrame(),sleep=0.8,DIR='InstituLA
             for cat in browser.find_elements(By.XPATH, i[1]):
                 # exist products
                 id_cat = cat.get_attribute('id')
-                #print(cat.text,'----',id_cat)
+                print(cat.text,'----',id_cat)
                 num_prods_cat = int(re.findall(r'\d+',cat.text)[0])
                 if num_prods_cat > 0:
                     time.sleep(sleep)
