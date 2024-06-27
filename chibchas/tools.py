@@ -7,6 +7,8 @@ import getpass
 import os
 import sys
 import re
+from cryptography.fernet import Fernet
+from os.path import isfile
 
 #requirements
 import json
@@ -478,6 +480,56 @@ def format_ptt(workbook):
     worksheet.set_row_pixels(19, 40)
     worksheet.set_row_pixels(20, 40)
     worksheet.set_row_pixels(22, 40)
+
+
+def encrypted_login():
+    login_file = 'login.enc'
+    if not isfile(login_file):
+        usuario = input('Usuario: ')
+        contraseña = getpass.getpass('Contraseña: ')    
+        ## key generation → Cannot be in repo!!!
+        key = Fernet.generate_key()
+     
+        ## string the key in a file
+        with open('filekey.key', 'wb') as filekey:
+           filekey.write(key) 
+        
+        # opening the key
+        with open('filekey.key', 'rb') as filekey:
+            key = filekey.read()
+         
+         
+        # using the generated key
+        fernet = Fernet(key)
+        
+        encrypted = fernet.encrypt(f'{{"usuario": "{usuario}", "contraseña": "{contraseña}"}}'.encode('utf8'))
+         
+        # opening the file in write mode and 
+        # writing the encrypted data
+        with open(login_file, 'wb') as encrypted_file:
+            encrypted_file.write(encrypted)
+        print('local encrypted login file have been created')
+    else:
+        print(f'Using existing local encrypted login file from previos run: ./{login_file}')
+    
+    with open('filekey.key', 'rb') as filekey:
+        key = filekey.read()
+         
+    # using the generated key
+    fernet = Fernet(key)
+    
+    
+    with open(login_file, 'rb') as enc_file:
+        encrypted = enc_file.read()
+     
+    # decrypting the file
+    decrypted = fernet.decrypt(encrypted)
+    
+    login = eval(decrypted.decode('utf8'))
+    # internal variables inside function
+    usuario = login['usuario']
+    contraseña = login['contraseña']
+    return usuario, contraseña
 
 def login(user,password,institution='UNIVERSIDAD DE ANTIOQUIA',sleep=0.8,headless=True):
     #def login(user,password): → browser, otro, otro

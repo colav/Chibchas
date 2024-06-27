@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 import argparse
-from chibchas.tools import main, time
-import getpass
+from chibchas.tools import main, time, encrypted_login
 import tempfile
 import shutil
 import sys
@@ -36,8 +35,7 @@ parser.add_argument('-remove_tmp','--remove_tmp', dest='keep_tmp', action='store
 args = parser.parse_args()
 
 if __name__=='__main__':
-    user=input('Usuario: ')
-    password=getpass.getpass('Contraseña: ')
+    user, password = encrypted_login()
     if args.debug:
         print(user," ",password)
     tmp_path = tempfile.gettempdir()+"/chibchas/"+user
