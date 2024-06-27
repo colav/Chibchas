@@ -15,7 +15,6 @@ import helium as h
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.by import By
 import pathlib
-from selenium.webdriver.firefox.options import Options
 
 pd.options.display.max_rows = 100
 pd.options.display.max_colwidth = 1000
@@ -490,9 +489,7 @@ def login(user,password,institution='UNIVERSIDAD DE ANTIOQUIA',sleep=0.8,headles
     # passw=
 
     # login
-    options = Options()
-    options.binary_location = "/snap/firefox/current/usr/lib/firefox/firefox"
-    browser = h.start_firefox('https://scienti.minciencias.gov.co/institulac2-war/',headless=headless,options=options)
+    browser = h.start_firefox('https://scienti.minciencias.gov.co/institulac2-war/',headless=headless)
 
     #browser = h.start_firefox('https://scienti.minciencias.gov.co/institulac2-war/')
     time.sleep(sleep)
