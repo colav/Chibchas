@@ -17,6 +17,7 @@ import helium as h
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.by import By
 import pathlib
+from selenium.webdriver.firefox.options import Options
 
 pd.options.display.max_rows = 100
 pd.options.display.max_colwidth = 1000
@@ -96,8 +97,8 @@ DBEH = {
               'ASE_PRG_ACA_P': {'APGA_P_TABLE':['Agregue las evidencias verificadas al repositorio digital y genere un hipervínculo en este campo','¿El producto cumple con los requisitos para ser avalado?']},
               'ASE_CRE_CUR_P': {'ACC_P_TABLE':['Agregue las evidencias verificadas al repositorio digital y genere un hipervínculo en este campo','¿El producto cumple con los requisitos para ser avalado?']},
               'ASE_PRG_ONDAS_P': {'APO_P_TABLE':['Agregue las evidencias verificadas al repositorio digital y genere un hipervínculo en este campo','¿El producto cumple con los requisitos para ser avalado?']}},
-    'NC' : {'LIB' : {'LIB_T_AVAL_TABLE': ['Proyecto de investigación del cual se derivó el libro (Código-Título)','Financiador(es) del proyecto del cual se derivó el libro', 'Financiador(es) de la publicación','Autores','Citas recibidas (si tiene)','Agregue las evidencias verificadas al repositorio digital y genere un hipervínculo en este campo','¿El producto cumple con los requisitos para ser avalado?']}, 
-            'CAP_LIB':{'CAP_LIB_T_AVAL_TABLE':['Proyecto de investigación del cual se derivó el libro que contiene el capítulo (Código-Título)','Financiador del proyecto del cual se derivó el libro que contiene el capítulo','Financiador de la publicación','Autores','Citas recibidas (si tiene)','Agregue las evidencias verificadas al repositorio digital y genere un hipervínculo en este campo','¿El producto cumple con los requisitos para ser avalado?']}}
+    #'NC' : {'LIB' : {'LIB_T_AVAL_TABLE': ['Proyecto de investigación del cual se derivó el libro (Código-Título)','Financiador(es) del proyecto del cual se derivó el libro', 'Financiador(es) de la publicación','Autores','Citas recibidas (si tiene)','Agregue las evidencias verificadas al repositorio digital y genere un hipervínculo en este campo','¿El producto cumple con los requisitos para ser avalado?']}, 
+            #'CAP_LIB':{'CAP_LIB_T_AVAL_TABLE':['Proyecto de investigación del cual se derivó el libro que contiene el capítulo (Código-Título)','Financiador del proyecto del cual se derivó el libro que contiene el capítulo','Financiador de la publicación','Autores','Citas recibidas (si tiene)','Agregue las evidencias verificadas al repositorio digital y genere un hipervínculo en este campo','¿El producto cumple con los requisitos para ser avalado?']}}
 }
 
 d = {
@@ -955,20 +956,21 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
             pass
 
         # libros avalados con revisión
-        try:
-            df=rename_col(clean_df(DBG['NC']['LIB']), 'Título del artículo' ,'Título del libro') 
+        # try:
+        #     df=rename_col(clean_df(DBG['NC']['LIB']), 'Título del artículo' ,'Título del libro') 
 
-            #df.to_excel(writer,sheet_name='FRH_P',startrow = var_rh)
+        #     #df.to_excel(writer,sheet_name='FRH_P',startrow = var_rh)
 
-            eh=DBEH['NC']['LIB']['LIB_T_AVAL_TABLE']
+        #     eh=DBEH['NC']['LIB']['LIB_T_AVAL_TABLE']
 
-            format_df(df, '5.LIB y LIB_FOR', var_w5 , writer, eh)
+        #     format_df(df, '5.LIB y LIB_FOR', var_w5 , writer, eh)
 
-            var_w5  += df.shape[0] + 3
+        #     var_w5  += df.shape[0] + 3
 
-        except KeyError as e:
+        # except KeyError as e:
 
-            pass
+        #     pass
+
 
         # libros formacion
         try:
@@ -1014,20 +1016,21 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
             pass
 
         # caps avalados con revision
-        try:
-            df = clean_df(DBG['NC']['CAP_LIB'])  ### ,veh = 2
+          # caps avalados con revision
+        # try:
+        #     df = clean_df(DBG['NC']['CAP_LIB'])  ### ,veh = 2
 
-            #df.to_excel(writer,sheet_name='FRH_P',startrow = var_rh)
+        #     #df.to_excel(writer,sheet_name='FRH_P',startrow = var_rh)
 
-            eh = DBEH['NC']['CAP_LIB']['CAP_LIB_T_AVAL_TABLE']
+        #     eh = DBEH['NC']['CAP_LIB']['CAP_LIB_T_AVAL_TABLE']
 
-            format_df(df, '6.CAP', var_w6, writer, eh)
+        #     format_df(df, '6.CAP', var_w6, writer, eh)
 
-            var_w6 += df.shape[0] + 3
+        #     var_w6 += df.shape[0] + 3
 
-        except KeyError as e:
+        # except KeyError as e:
 
-            pass
+        #     pass
 
         # traduccion filologica
         try:
