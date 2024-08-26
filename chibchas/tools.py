@@ -41,15 +41,12 @@ def get_info(df,cod_gr):
     
     dfi = pd.DataFrame(info, index=[0])
   
-    
     return dfi
 
-# extra headers by products
+# Extra headers by products. It sets the extra-headers for tables in the excel sheets.
 DBEH = {
-    
     'INFO_GROUP': 'TABLE',
-    'MEMBERS':['Identificación', 'Nacionalidad', 'Tiene afiliación con UdeA', 'Si no tiene afiliación UdeA diligencie el nombre de la Institución','Nro. Horas de dedicación semanales que avala el Coordinador de grupo'], # 2
-       
+    'MEMBERS':['Identificación', 'Nacionalidad', 'Tiene afiliación con UdeA', 'Si no tiene afiliación UdeA diligencie el nombre de la Institución','Nro. Horas de dedicación semanales que avala el Coordinador de grupo'],
     'NC_P': {'ART_IMP_P': {'ART_P_TABLE':['URL','DOI','Si no tiene URL o DOI agregue una evidencia en el repositorio digital y genere un hipervínculo en este campo','¿El producto cumple con los requisitos para ser avalado?']},
              'ART_ELE_P': {'ART_E_P_TABLE':['URL','DOI','Si no tiene URL o DOI agregue una evidencia en el repositorio digital y genere un hipervínculo en este campo','¿El producto cumple con los requisitos para ser avalado?']},
              'LIB_P':     {'LIB_P_TABLE':['Proyecto de investigación del cual se derivó el libro (Código-Título)','Financiador(es) del proyecto del cual se derivó el libro', 'Financiador(es) de la publicación','Agregue las evidencias verificadas al repositorio digital y genere un hipervínculo en este campo','¿El producto cumple con los requisitos para ser avalado?']},
@@ -80,7 +77,7 @@ DBEH = {
               'CONP_TEC_P': {'CONP_TEC_P_TABLE':['Autores','Agregue las evidencias verificadas al repositorio digital y genere un hipervínculo en este campo','¿El producto cumple con los requisitos para ser avalado?']},
               'REG_AAD_P': {'AAAD_P_TABLE':['Autores','Agregue las evidencias verificadas al repositorio digital y genere un hipervínculo en este campo','¿El producto cumple con los requisitos para ser avalado?']},
               'SIG_DIS_P': {'SD_P_TABLE':['Autores','Contrato licenciamiento (si aplica)','Agregue las evidencias verificadas al repositorio digital y copie el link del archivo en este campo','¿El producto cumple con los requisitos para ser avalado?']}
-              },
+            },
     'ASC_P': {'GEN_CONT_IMP_P': {'GC_I_P_TABLE_5':['Autores','Citas recibidas (si tiene)','Agregue las evidencias verificadas al repositorio digital y genere un hipervínculo en este campo','¿El producto cumple con los requisitos para ser avalado?']},
               'PASC_P': {'PASC_FOR_P_TABLE':['Proyecto/Código','Agregue las evidencias verificadas al repositorio digital y genere un hipervínculo en este campo','¿El producto cumple con los requisitos para ser avalado?'],
                'PASC_TRA_P_TABLE':['Proyecto/Código','Agregue las evidencias verificadas al repositorio digital y genere un hipervínculo en este campo','¿El producto cumple con los requisitos para ser avalado?'],
@@ -89,18 +86,22 @@ DBEH = {
                'DC_P': {'DC_CD_P_TABLE':['Proyecto/Código','Agregue las evidencias verificadas al repositorio digital y genere un hipervínculo en este campo','¿El producto cumple con los requisitos para ser avalado?'],
                'DC_CON_P_TABLE':['Medio de verificación','Proyecto/Código','Agregue las evidencias verificadas al repositorio digital y genere un hipervínculo en este campo','¿El producto cumple con los requisitos para ser avalado?'],
                'DC_TRA_P_TABLE':['Medio de verificación','Proyecto/Código','Agregue las evidencias verificadas al repositorio digital y genere un hipervínculo en este campo','¿El producto cumple con los requisitos para ser avalado?'],
-               'DC_DES_P_TABLE':['Medio de verificación','Proyecto/Código','Agregue las evidencias verificadas al repositorio digital y genere un hipervínculo en este campo','¿El producto cumple con los requisitos para ser avalado?']}},
-    
+               'DC_DES_P_TABLE':['Medio de verificación','Proyecto/Código','Agregue las evidencias verificadas al repositorio digital y genere un hipervínculo en este campo','¿El producto cumple con los requisitos para ser avalado?']}
+            },
     'FRH_P': {'TES_DOC_P': {'TD_P_TABLE':['Número de cédula del graduado','¿La fecha fin coincide con la fecha de grado del estudiante?','Agregue las evidencias verificadas al repositorio digital y genere un hipervínculo en este campo','¿El producto cumple con los requisitos para ser avalado?']},  # 1 -1
               'TES_MAST_P': {'TM_P_TABLE':['Número de cédula del graduado','¿La fecha fin coincide con la fecha de grado del estudiante?','Agregue las evidencias verificadas al repositorio digital y genere un hipervínculo en este campo','¿El producto cumple con los requisitos para ser avalado?']}, # 1 -1
               'TES_PREG_P': {'TP_P_TABLE':['Número de cédula del graduado','¿La fecha fin coincide con la fecha de grado del estudiante?','Agregue las evidencias verificadas al repositorio digital y genere un hipervínculo en este campo','¿El producto cumple con los requisitos para ser avalado?']}, # 1 -1
               'ASE_PRG_ACA_P': {'APGA_P_TABLE':['Agregue las evidencias verificadas al repositorio digital y genere un hipervínculo en este campo','¿El producto cumple con los requisitos para ser avalado?']},
               'ASE_CRE_CUR_P': {'ACC_P_TABLE':['Agregue las evidencias verificadas al repositorio digital y genere un hipervínculo en este campo','¿El producto cumple con los requisitos para ser avalado?']},
-              'ASE_PRG_ONDAS_P': {'APO_P_TABLE':['Agregue las evidencias verificadas al repositorio digital y genere un hipervínculo en este campo','¿El producto cumple con los requisitos para ser avalado?']}},
-    #'NC' : {'LIB' : {'LIB_T_AVAL_TABLE': ['Proyecto de investigación del cual se derivó el libro (Código-Título)','Financiador(es) del proyecto del cual se derivó el libro', 'Financiador(es) de la publicación','Autores','Citas recibidas (si tiene)','Agregue las evidencias verificadas al repositorio digital y genere un hipervínculo en este campo','¿El producto cumple con los requisitos para ser avalado?']}, 
-            #'CAP_LIB':{'CAP_LIB_T_AVAL_TABLE':['Proyecto de investigación del cual se derivó el libro que contiene el capítulo (Código-Título)','Financiador del proyecto del cual se derivó el libro que contiene el capítulo','Financiador de la publicación','Autores','Citas recibidas (si tiene)','Agregue las evidencias verificadas al repositorio digital y genere un hipervínculo en este campo','¿El producto cumple con los requisitos para ser avalado?']}}
+              'ASE_PRG_ONDAS_P': {'APO_P_TABLE':['Agregue las evidencias verificadas al repositorio digital y genere un hipervínculo en este campo','¿El producto cumple con los requisitos para ser avalado?']},
+              'PROY_INV_DES_P':{'PID_P_TABLE':['Código SIIU o código en el Centro','Si el proyecto no está en SIIU, agregue las evidencias verificadas al repositorio digital y genere un hipervínculo en este campo','¿El producto cumple con los requisitos para ser avalado?']},
+              'PROY_INV_CRE_P':{'INV_CRE_P_TABLE':['Código SIIU o código en el Centro','Si el proyecto no está en SIIU, agregue las evidencias verificadas al repositorio digital y genere un hipervínculo en este campo','¿El producto cumple con los requisitos para ser avalado?']},
+              'PROY_INV_DES_INN_P':{'PF_P_TABLE':['Código SIIU o código en el Centro','Si el proyecto no está en SIIU, agregue las evidencias verificadas al repositorio digital y genere un hipervínculo en este campo','¿El producto cumple con los requisitos para ser avalado?']},
+              'PROY_INV_RESP_SOC_P':{'PE_P_TABLE':['Código SIIU o código en el Centro','Si el proyecto no está en SIIU, agregue las evidencias verificadas al repositorio digital y genere un hipervínculo en este campo','¿El producto cumple con los requisitos para ser avalado?']}
+              }
 }
 
+# The below variable helps  to iterate over columns in a given shet. 
 d = {
                 '1': 'C',
                 '2': 'D',
@@ -123,9 +124,8 @@ d = {
                 '19': 'U',
                 '20': 'V'
 }
-
+# Remove not necesary colmns(unnamed) from a data frame.  
 def clean_df(df):
-    'remove innecesari collums'
     c=[x for x in df.columns if x.find('Unnamed:') == -1 and  x.find('Revisar') == -1 and x.find('Avalar integrante') == -1]
     dfc=df[c]
     return dfc
@@ -146,16 +146,16 @@ def rename_col(df,colr,colf):
     df.rename(columns = {colr: colf,}, inplace = True)
     return df
 
-# WORKSHEET 4 - 12.
+# Sheets 2 - 12.
 def format_df(df, sheet_name, start_row, writer,eh, veh = None):
     'format headers'
     
-    df.to_excel(writer,sheet_name, startrow = start_row+1, startcol=2,index = False)
+    df.to_excel(writer, sheet_name, startrow = start_row+1, startcol = 2, index = False)
 
     # Get the xlsxwriter workbook and worksheet objects.
     worksheet = writer.sheets[sheet_name]
     
-         
+    # Set style for a merged cells     
     merge_format = workbook.add_format({
     'bold': 1,
     'border':1,
@@ -164,45 +164,42 @@ def format_df(df, sheet_name, start_row, writer,eh, veh = None):
     'valign': 'vcenter',
     'font_color': 'blue'})
     
-    #form merge cells
+    # define the interval for merged cells
     if not df.empty:
         start,end = 1,df.shape[1]
     else:
         start,end = 1,1
     
-
+     # Range merged headers cells 1
     m_range = d.get(str(start)) + str(start_row + 1) + ':' + d.get(str(end)) + str(start_row +1)
-
     worksheet.merge_range(m_range, 'Información suministrada por la Vicerrectoría de Investigación', merge_format)
     
-    # for merge headers cells
+    # Range merged headers cells 2
     _m_range = d.get(str(end+1)) + str(start_row +1) + ':' +  d.get(str(end+len(eh))) + str(start_row +1)
-    
     worksheet.merge_range(_m_range, 'Validación del Centro, Instituto o Corporación', merge_format)
         
     worksheet.set_row_pixels(start_row+1, 120)
     #worksheet.set_column('C:C',30,general)
     
-    # SET COLUMS FORMAT BY SHEET
-    if sheet_name=='3.Integrantes grupo':
+    # Set column format by sheet
+    if sheet_name=='2.Integrantes grupo':
         worksheet.set_column('A:A', 5)
         worksheet.set_column('B:B', 2)
         worksheet.set_column('D:K',15,general)
     
-    if sheet_name=='4.ART y N':
+    if sheet_name=='3.ART y N':
         worksheet.set_column('A:A', 5)
         worksheet.set_column('B:B', 2)
         worksheet.set_column('C:C',20,general)
         worksheet.set_column('M:O',20, general)
      
-
-    if sheet_name=='5.LIB y LIB_FOR':
+    if sheet_name=='4.LIB y LIB_FOR':
         worksheet.set_column('A:A', 5)
         worksheet.set_column('B:B', 2)
         worksheet.set_column('C:C',20,general)
         worksheet.set_column('I:P',20,general)
 
-    if sheet_name=='6.CAP':
+    if sheet_name=='5.CAP':
         worksheet.set_column('A:A', 5)
         worksheet.set_column('B:B', 2)
         worksheet.set_column('C:C',20,general)
@@ -210,7 +207,7 @@ def format_df(df, sheet_name, start_row, writer,eh, veh = None):
         worksheet.set_column('I:K',18,general)
         worksheet.set_column('J:P',20,general)
 
-    if sheet_name=='7.Patente_Variedades':
+    if sheet_name=='6.Patente_Variedades':
         worksheet.set_column('A:A', 5)
         worksheet.set_column('B:B', 2)
         worksheet.set_column('C:C',20,general)
@@ -218,41 +215,46 @@ def format_df(df, sheet_name, start_row, writer,eh, veh = None):
         worksheet.set_column('J:K',20,general)
         worksheet.set_column('L:S',20,general)
 
-    if sheet_name=='8.AAD':
+    if sheet_name=='7.AAD':
         worksheet.set_column('A:A', 5)
         worksheet.set_column('B:B', 2)
         worksheet.set_column('C:C',20,general)
         worksheet.set_column('F:K',10,general)
         worksheet.set_column('L:P',25,general)
 
-    if sheet_name=='9.Tecnológico':
+    if sheet_name=='8.Tecnológico':
         worksheet.set_column('A:A', 5)
         worksheet.set_column('B:B', 2)
         worksheet.set_column('C:C',20,general)
         worksheet.set_column('D:I',10,general)
         worksheet.set_column('J:S',18,general)
 
-    if sheet_name=='10.Empresarial':
+    if sheet_name=='9.Empresarial':
         worksheet.set_column('A:A', 5)
         worksheet.set_column('B:B', 2)
         worksheet.set_column('C:C',20,general)
         worksheet.set_column('D:H',10,general)
         worksheet.set_column('I:N',20,general)
 
-    if sheet_name=='11.ASC y Divulgación':
+    if sheet_name=='10.ASC y Divulgación':
         worksheet.set_column('A:A', 5)
         worksheet.set_column('B:B', 2)
         worksheet.set_column('C:C',28,general)
         worksheet.set_column('I:I',15,general)
         worksheet.set_column('J:N',20,general)
 
-    if sheet_name=='12.Formación y programas':
+    if sheet_name=='11.Formación y programas':
         worksheet.set_column('A:A', 5)
         worksheet.set_column('B:B', 2)
         worksheet.set_column('C:C',25,general)
         worksheet.set_column('D:G',10,general)
         worksheet.set_column('L:O',15,general)
         worksheet.set_column('N:N',20,general)
+    
+    if sheet_name=='12.Proyectos':
+        worksheet.set_column('A:A', 5)
+        worksheet.set_column('B:B', 2)
+        worksheet.set_column('C:K',25,general)
         
     worksheet.write(start_row+1, 0, 'VoBo de VRI', merge_format)
     # Add a header format.
@@ -273,13 +275,13 @@ def format_df(df, sheet_name, start_row, writer,eh, veh = None):
     # write extra headers
     for col_num, value in enumerate(eh):
         worksheet.write(start_row+1, col_num + df.shape[1] + 2, value, fmt_header)
-        
+
+    # Write validation values    
     v_range = 'A' + str(start_row +3) + ':' + 'A' + str(df.shape[0] + start_row +2)
     worksheet.data_validation(v_range,{'validate': 'list',
                                   'source': ['Sí', 'No']})
     
-    
-    if sheet_name !='3.Integrantes grupo':
+    if sheet_name !='2.Integrantes grupo':
         
         v_range = d.get(str(end+len(eh))) + str(start_row +3) + ':' + d.get(str(end+len(eh))) + str(df.shape[0] + start_row +2)
         worksheet.data_validation(v_range,{'validate': 'list',
@@ -305,7 +307,6 @@ def format_df(df, sheet_name, start_row, writer,eh, veh = None):
         v_range = d.get(str(end+len(eh)-2)) + str(start_row +3) + ':' + d.get(str(end+len(eh)-2)) + str(df.shape[0] + start_row +2)
         worksheet.data_validation(v_range,{'validate': 'list',
                                   'source': ['Sí', 'No']})
-        
     if veh == 3:
         v_range = d.get(str(end+len(eh)-2)) + str(start_row +3) + ':' + d.get(str(end+len(eh)-3)) + str(df.shape[0] + start_row +2)
         worksheet.data_validation(v_range,{'validate': 'list',
@@ -318,7 +319,7 @@ def format_df(df, sheet_name, start_row, writer,eh, veh = None):
                                   'source': ['Sí', 'No']})
         
         
-##### WORKSHEET 2
+##### WORKSHEET 1
 def format_info(df, writer, sheet_name):
     
     '''format worksheet'''
@@ -359,7 +360,7 @@ def format_info(df, writer, sheet_name):
     worksheet.set_column('A:A', 15)
     worksheet.set_column('B:B', 15)
 
-    logo_path = str(pathlib.Path(__file__).parent.absolute()) + '/templates/img/logo.jpeg'
+    logo_path = str(pathlib.Path("__file__").parent.absolute()) + '/templates/img/logo.jpeg'
     worksheet.insert_image('A1', logo_path)
     
     # title 1 UNIVERSIDAD DE ANTIOQUIA
@@ -416,7 +417,7 @@ def format_info(df, writer, sheet_name):
     worksheet.write('F14',c, fmt_header) 
     worksheet.set_column('F14:F14',30, normal)
 
-# WORKSHEET 1
+# WORKSHEET 0
 def format_ptt(workbook):
     
     #Global variables
@@ -434,7 +435,7 @@ def format_ptt(workbook):
     De antemano, la Vicerrectoría de Investigación agradece su participación en este ejercicio, que resulta de vital importancia para llevar a buen término la Convocatoria de Reconocimiento y Medición de Grupos de Investigación
     '''
     #Final part of the first sheet
-    datos=clean_df(pd.read_excel(str(pathlib.Path(__file__).parent.absolute()) + '/templates/template_data.xlsx'))
+    datos=clean_df(pd.read_excel(str(pathlib.Path("__file__").parent.absolute()) + '/templates/template_data.xlsx'))
 
     #Capture xlsxwriter object 
     # IMPORTANT → workbook is the same object used in the official document at https://xlsxwriter.readthedocs.io
@@ -453,7 +454,7 @@ def format_ptt(workbook):
     #Prepare image insertion: See → https://xlsxwriter.readthedocs.io/example_images.html
     worksheet.set_column('A:A', 15)
     worksheet.set_column('B:B', 15)
-    logo_path = str(pathlib.Path(__file__).parent.absolute()) + '/templates/img/logo.jpeg'
+    logo_path = str(pathlib.Path("__file__").parent.absolute()) + '/templates/img/logo.jpeg'
     worksheet.insert_image('A1', logo_path)
     #Prepare text insertion: See  → https://xlsxwriter.readthedocs.io/example_images.html
     worksheet.set_column('C:C', 140,general)
@@ -679,29 +680,31 @@ def get_groups(browser,DIR='InstituLAC',sleep=0.8):
         pickle.dump(dfg, f)        
     return browser,dfg
 
-def get_DB(browser,target_data,DB=[],dfg=pd.DataFrame(),sleep=0.8,DIR='InstituLAC',
-           start=None,end=None,COL_Group='',start_time=0):
+def get_DB(browser, target_data, DB=[], dfg = pd.DataFrame(), sleep=0.8, DIR='InstituLAC', start=None, end=None, COL_Group='', start_time = 0):
+    '''Get all products of institulac'''
+
     os.makedirs(DIR,exist_ok=True)
+
     if dfg.empty:
         browser,dfg=get_groups(browser,DIR=DIR,sleep=sleep)
+
     dfg = dfg.reset_index(drop=True)
 
-    #find start and end if COL_Group
+    # Utility to handle interruptions. find start and end index to for the last COL_Group. 
     if COL_Group:
         dfcg=dfg[dfg['COL Grupo']==COL_Group]
         if not dfcg.empty:
             start=dfcg.index[0]
             end=start+1
-    #assert dfg.shape[0] == 324
 
     time.sleep(sleep*2)
-    for idx in dfg.index[start:end]:       # TEST
+    for idx in dfg.index[start:end]:       
 
-        # create db for store things related to group
+        # Create db for store things related to group
         DBG = {} #  HERE V1. DBG.keys = [cat1,cat2,...,catN]
                  #  DBG['cat1'].keys = [prod1bycat,...prodnbycat]
 
-        # part info group
+        # Info group
         print(dfg.loc[idx,'Nombre del grupo'])
 
         # specific group url
@@ -846,15 +849,17 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
     global general
     global writer
     global workbook
-    # ONE GROUP IMPLEMENTATION
+
+    # Format records from DB into excel
     for idxx in range(len(DB)):
     # DATA
         DBG = DB[idxx]
 
         ### excel name
-        name = 'Plantilla_Formato de verificación de información_GrupLAC_894-2021_'
+        name = 'Plantilla_Formato de verificación de información_GrupLAC_2024_'
 
         cod_gr = dfg.loc[idxx,'COL Grupo']
+
         try:
             col_gr = dfg[dfg['Nombre del grupo']==DBG['Info_group']['Nombre Grupo'].dropna().iloc[-1]
                       ]['COL Grupo'].iloc[-1]
@@ -870,24 +875,24 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
 
         general=workbook.add_format({'text_wrap':True})
 
-        # PPT
-        format_ptt(workbook)
+        # PPT uncomment if ppt is necesary
+        #format_ptt(workbook)
 
         # INFO GROUP
         df=get_info(DBG['Info_group'], col_gr)
-        format_info(df, writer, '2.Datos de contacto')
+        format_info(df, writer, '1.Datos de contacto')
 
         # WORKSHEET 1
         df = clean_df(DBG['Members']) 
         eh = DBEH['MEMBERS']
-        format_df(df, '3.Integrantes grupo', 1, writer, eh, veh=0) #### veh = 0
+        format_df(df, '2.Integrantes grupo', 1, writer, eh, veh=0) #### veh = 0
 
         ### NC_P ### 
 
-        #------- w4 -------
-        # 4.ART y N
+        #------- w3 -------
+        # 3.ART y N
 
-        var_w4 = 0
+        var_w3 = 0
 
         try:
             df=clean_df(DBG['NC_P']['ART_IMP_P'])
@@ -896,9 +901,9 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
 
             eh=DBEH['NC_P']['ART_IMP_P']['ART_P_TABLE']
 
-            format_df(df, '4.ART y N',  var_w4, writer,eh)
+            format_df(df, '3.ART y N',  var_w3, writer,eh)
 
-            var_w4 += df.shape[0] + 3
+            var_w3 += df.shape[0] + 3
 
         except KeyError as e:
 
@@ -911,9 +916,9 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
 
             eh=DBEH['NC_P']['ART_ELE_P']['ART_E_P_TABLE']
 
-            format_df(df, '4.ART y N', var_w4, writer,eh)
+            format_df(df, '3.ART y N', var_w3, writer,eh)
 
-            var_w4 += df.shape[0] + 3
+            var_w3 += df.shape[0] + 3
 
         except KeyError as e:
 
@@ -926,18 +931,18 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
 
             eh=DBEH['NC_P']['NOT_CIE_P']['NOT_CIE_P_TABLE']
 
-            format_df(df, '4.ART y N', var_w4, writer,eh)
+            format_df(df, '3.ART y N', var_w3, writer,eh)
 
-            var_w4 += df.shape[0] + 3
+            var_w3 += df.shape[0] + 3
 
         except KeyError as e:
 
             pass
-        # -------------- w4 -------------------------
+        # -------------- w3 -------------------------
 
-        #------------ ---w5------------
-        # 5.LIB y LIB_FOR
-        var_w5 = 0
+        #------------ ---w4------------
+        # 4.LIB y LIB_FOR
+        var_w4 = 0
 
         # libros por pertenencia
         try:
@@ -947,9 +952,9 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
 
             eh=DBEH['NC_P']['LIB_P']['LIB_P_TABLE']
 
-            format_df(df, '5.LIB y LIB_FOR',  var_w5, writer,eh)
+            format_df(df, '4.LIB y LIB_FOR',  var_w4, writer,eh)
 
-            var_w5 += df.shape[0] + 3
+            var_w4 += df.shape[0] + 3
 
         except KeyError as e:
 
@@ -963,9 +968,9 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
 
         #     eh=DBEH['NC']['LIB']['LIB_T_AVAL_TABLE']
 
-        #     format_df(df, '5.LIB y LIB_FOR', var_w5 , writer, eh)
+        #     format_df(df, '4.LIB y LIB_FOR', var_w4 , writer, eh)
 
-        #     var_w5  += df.shape[0] + 3
+        #     var_w4  += df.shape[0] + 3
 
         # except KeyError as e:
 
@@ -980,9 +985,9 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
 
                 eh=DBEH['ASC_P']['GEN_CONT_IMP_P']['GC_I_P_TABLE_5']
 
-                format_df(df, '5.LIB y LIB_FOR',  var_w5 , writer,eh)
+                format_df(df, '4.LIB y LIB_FOR',  var_w4 , writer,eh)
 
-                var_w5 += df.shape[0] + 3
+                var_w4 += df.shape[0] + 3
 
             else: 
                 raise(KeyError)
@@ -991,14 +996,14 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
         except KeyError as e:
 
             pass  
-        # --------------------w5--------------
+        # --------------------w4--------------
 
-        #--------------------w6---------------
-        #6.CAP
+        #--------------------w5---------------
+        #5.CAP
 
         # cap pertenencia
 
-        var_w6 = 0
+        var_w5 = 0
 
         try:
             df=clean_df(DBG['NC_P']['CAP_LIB_P'])
@@ -1007,9 +1012,9 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
 
             eh=DBEH['NC_P']['CAP_LIB_P']['CAP_LIB_P_TABLE']
 
-            format_df(df, '6.CAP',var_w6, writer,eh)
+            format_df(df, '5.CAP',var_w5, writer,eh)
 
-            var_w6 += df.shape[0] + 3
+            var_w5 += df.shape[0] + 3
 
         except KeyError as e:
 
@@ -1024,9 +1029,9 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
 
         #     eh = DBEH['NC']['CAP_LIB']['CAP_LIB_T_AVAL_TABLE']
 
-        #     format_df(df, '6.CAP', var_w6, writer, eh)
+        #     format_df(df, '5.CAP', var_w5, writer, eh)
 
-        #     var_w6 += df.shape[0] + 3
+        #     var_w5 += df.shape[0] + 3
 
         # except KeyError as e:
 
@@ -1040,19 +1045,19 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
 
             eh=DBEH['NC_P']['TRA_FIL_P']['TRA_FIL_P_TABLE']
 
-            format_df(df, '6.CAP', var_w6, writer,eh)
+            format_df(df, '5.CAP', var_w5, writer,eh)
 
-            var_w6 += df.shape[0] + 3
+            var_w5 += df.shape[0] + 3
 
         except KeyError as e:
 
             pass
 
-        #-------------------w6------------------
+        #-------------------w5------------------
 
-        #------------w7-------------------------
-        #7.Patente_Variedades
-        var_w7 = 0
+        #------------w6-------------------------
+        #6.Patente_Variedades
+        var_w6 = 0
 
         # patentes
         try:
@@ -1062,9 +1067,9 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
 
             eh=DBEH['NC_P']['PAT_P']['PAT_P_TABLE']
 
-            format_df(df, '7.Patente_Variedades', var_w7, writer,eh, veh=1)
+            format_df(df, '6.Patente_Variedades', var_w6, writer,eh, veh=1)
 
-            var_w7 += df.shape[0] + 3
+            var_w6 += df.shape[0] + 3
 
         except KeyError as e:
 
@@ -1078,9 +1083,9 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
 
             eh=DBEH['NC_P']['VAR_VEG_P']['VV_P_TABLE']
 
-            format_df(df, '7.Patente_Variedades', var_w7, writer,eh)
+            format_df(df, '6.Patente_Variedades', var_w6, writer,eh)
 
-            var_w7 += df.shape[0] + 3
+            var_w6 += df.shape[0] + 3
 
         except KeyError as e:
 
@@ -1094,9 +1099,9 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
 
             eh=DBEH['NC_P']['VAR_ANI_P']['VA_P_TABLE']
 
-            format_df(df, '7.Patente_Variedades', var_w7, writer,eh)
+            format_df(df, '6.Patente_Variedades', var_w6, writer,eh)
 
-            var_w7 += df.shape[0] + 3
+            var_w6 += df.shape[0] + 3
 
         except KeyError as e:
 
@@ -1110,17 +1115,17 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
 
             eh=DBEH['NC_P']['RAZ_PEC_P']['RAZ_PEC_P_TABLE']
 
-            format_df(df, '7.Patente_Variedades', var_w7, writer,eh)
+            format_df(df, '6.Patente_Variedades', var_w6, writer,eh)
 
-            var_w7 += df.shape[0] + 3
+            var_w6 += df.shape[0] + 3
 
         except KeyError as e:
 
             pass
-        # ---------------w7---------------------
+        # ---------------w6---------------------
 
-        #---------------w8-------------------
-        var_w8 = 0
+        #---------------w7-------------------
+        var_w7 = 0
 
         # productos investigacion creacion
         try:
@@ -1130,22 +1135,22 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
 
             eh=DBEH['NC_P']['PRD_INV_ART_P']['PAAD_P_TABLE']
 
-            format_df(df, '8.AAD', var_w8, writer,eh, veh=3)
+            format_df(df, '7.AAD', var_w7, writer,eh, veh=3)
 
-            var_w8 += df.shape[0] + 3
+            var_w7 += df.shape[0] + 3
 
         except KeyError as e:
 
             pass
 
-        #-------------W8---------------------
+        #-------------w7---------------------
 
-        #-------------W9----------------
+        #-------------w8----------------
 
-        # 9.Tecnológico
+        # 8.Tecnológico
         #### DTI_P
 
-        var_w9 = 0
+        var_w8 = 0
 
         # diseño industrial
         try:
@@ -1156,9 +1161,9 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
 
             eh=DBEH['DTI_P']['DIS_IND_P']['DI_P_TABLE']
 
-            format_df(df, '9.Tecnológico', var_w9, writer, eh)
+            format_df(df, '8.Tecnológico', var_w8, writer, eh)
 
-            var_w9 += df.shape[0] + 3
+            var_w8 += df.shape[0] + 3
 
         except KeyError as e:
 
@@ -1172,9 +1177,9 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
 
             eh=DBEH['DTI_P']['CIR_INT_P']['ECI_P_TABLE']
 
-            format_df(df, '9.Tecnológico', var_w9, writer,eh)
+            format_df(df, '8.Tecnológico', var_w8, writer,eh)
 
-            var_w9 += df.shape[0] + 3
+            var_w8 += df.shape[0] + 3
 
         except KeyError as e:
 
@@ -1188,9 +1193,9 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
 
             eh=DBEH['DTI_P']['COL_CIENT_P']['COL_CIENT_P_TABLE']
 
-            format_df(df, '9.Tecnológico', var_w9, writer,eh)
+            format_df(df, '8.Tecnológico', var_w8, writer,eh)
 
-            var_w9 += df.shape[0] + 3
+            var_w8 += df.shape[0] + 3
 
 
         except KeyError as e:
@@ -1203,9 +1208,9 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
 
             eh=DBEH['DTI_P']['SOFT_P']['SF_P_TABLE']
 
-            format_df(df, '9.Tecnológico', var_w9, writer,eh)
+            format_df(df, '8.Tecnológico', var_w8, writer,eh)
 
-            var_w9 += df.shape[0] + 3
+            var_w8 += df.shape[0] + 3
 
 
         except KeyError as e:
@@ -1220,9 +1225,9 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
 
             eh=DBEH['DTI_P']['SEC_IND_P']['SE_P_TABLE']
 
-            format_df(df, '9.Tecnológico', var_w9, writer,eh)
+            format_df(df, '8.Tecnológico', var_w8, writer,eh)
 
-            var_w9 += df.shape[0] + 3
+            var_w8 += df.shape[0] + 3
 
         except KeyError as e:
 
@@ -1236,9 +1241,9 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
 
             eh=DBEH['DTI_P']['PRT_IND_P']['PI_P_TABLE']
 
-            format_df(df, '9.Tecnológico',  var_w9, writer,eh)
+            format_df(df, '8.Tecnológico',  var_w8, writer,eh)
 
-            var_w9 += df.shape[0] + 3
+            var_w8 += df.shape[0] + 3
 
         except KeyError as e:
 
@@ -1252,9 +1257,9 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
 
             eh=DBEH['DTI_P']['SIG_DIS_P']['SD_P_TABLE']
 
-            format_df(df, '9.Tecnológico', var_w9, writer,eh)
+            format_df(df, '8.Tecnológico', var_w8, writer,eh)
 
-            var_w9 += df.shape[0] + 3
+            var_w8 += df.shape[0] + 3
 
         except KeyError as e:
 
@@ -1267,9 +1272,9 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
 
             eh=DBEH['DTI_P']['REG_AAD_P']['AAAD_P_TABLE']
 
-            format_df(df, '9.Tecnológico', var_w9, writer,eh)
+            format_df(df, '8.Tecnológico', var_w8, writer,eh)
 
-            var_w9 += df.shape[0] + 3
+            var_w8 += df.shape[0] + 3
 
 
         except KeyError as e:
@@ -1284,9 +1289,9 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
 
             eh=DBEH['DTI_P']['NUTRA_P']['NUTRA_P_TABLE']
 
-            format_df(df, '9.Tecnológico', var_w9, writer,eh)
+            format_df(df, '8.Tecnológico', var_w8, writer,eh)
 
-            var_w9 += df.shape[0] + 3
+            var_w8 += df.shape[0] + 3
 
 
         except KeyError as e:
@@ -1301,9 +1306,9 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
 
             eh=DBEH['DTI_P']['REG_CIENT_P']['REG_CIENT_P_TABLE']
 
-            format_df(df, '9.Tecnológico',var_w9 , writer,eh)
+            format_df(df, '8.Tecnológico',var_w8 , writer,eh)
 
-            var_w9 += df.shape[0] + 3
+            var_w8 += df.shape[0] + 3
 
 
         except KeyError as e:
@@ -1319,9 +1324,9 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
 
             eh=DBEH['DTI_P']['PLT_PIL_P']['PP_P_TABLE']
 
-            format_df(df, '9.Tecnológico', var_w9, writer,eh)
+            format_df(df, '8.Tecnológico', var_w8, writer,eh)
 
-            var_w9 += df.shape[0] + 3
+            var_w8 += df.shape[0] + 3
 
 
         except KeyError as e:
@@ -1337,18 +1342,18 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
 
             eh=DBEH['DTI_P']['PROT_VIG_EPID_P']['PROT_VIG_EPID_P_TABLE']
 
-            format_df(df, '9.Tecnológico',var_w9, writer,eh)
+            format_df(df, '8.Tecnológico',var_w8, writer,eh)
 
-            var_w9 += df.shape[0] + 3
+            var_w8 += df.shape[0] + 3
 
         except KeyError as e:
 
             pass
-        #---------------------w9----------------
+        #---------------------w8----------------
 
-        #---------------------w10----------------
-        # 10.Empresarial
-        var_w10 = 0
+        #---------------------w9----------------
+        # 9.Empresarial
+        var_w9 = 0
 
         # innovación gestion empresarial
         try:
@@ -1358,9 +1363,9 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
 
             eh=DBEH['DTI_P']['INN_GES_EMP_P']['IG_P_TABLE']
 
-            format_df(df, '10.Empresarial', var_w10, writer,eh)
+            format_df(df, '9.Empresarial', var_w9, writer,eh)
 
-            var_w10 += df.shape[0] + 3
+            var_w9 += df.shape[0] + 3
 
 
         except KeyError as e:
@@ -1376,9 +1381,9 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
 
             eh=DBEH['DTI_P']['INN_PROC_P']['IPP_P_TABLE']
 
-            format_df(df, '10.Empresarial', var_w10, writer,eh)
+            format_df(df, '9.Empresarial', var_w9, writer,eh)
 
-            var_w10 += df.shape[0] + 3
+            var_w9 += df.shape[0] + 3
 
 
         except KeyError as e:
@@ -1393,9 +1398,9 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
 
             eh=DBEH['DTI_P']['REG_NORM_REGL_LEG_P']['RNR_P_TABLE']
 
-            format_df(df, '10.Empresarial', var_w10, writer,eh)
+            format_df(df, '9.Empresarial', var_w9, writer,eh)
 
-            var_w10 += df.shape[0] + 3
+            var_w9 += df.shape[0] + 3
 
         except KeyError as e:
 
@@ -1409,9 +1414,9 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
 
             eh=DBEH['DTI_P']['CONP_TEC_P']['CONP_TEC_P_TABLE']
 
-            format_df(df, '10.Empresarial', var_w10, writer,eh)
+            format_df(df, '9.Empresarial', var_w9, writer,eh)
 
-            var_w10 += df.shape[0] + 3
+            var_w9 += df.shape[0] + 3
 
 
         except KeyError as e:
@@ -1426,9 +1431,9 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
 
             eh=DBEH['DTI_P']['EMP_BSE_TEC_P']['EBT_P_TABLE']
 
-            format_df(df, '10.Empresarial', var_w10, writer,eh)
+            format_df(df, '9.Empresarial', var_w9, writer,eh)
 
-            var_w10 += df.shape[0] + 3
+            var_w9 += df.shape[0] + 3
 
 
         except KeyError as e:
@@ -1443,21 +1448,21 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
 
             eh=DBEH['DTI_P']['EMP_CRE_CUL_P']['ICC_P_TABLE']
 
-            format_df(df, '10.Empresarial', var_w10, writer,eh)
+            format_df(df, '9.Empresarial', var_w9, writer,eh)
 
-            var_w10 += df.shape[0] + 3
+            var_w9 += df.shape[0] + 3
 
 
         except KeyError as e:
 
             pass
 
-        # -------------------------w10-------------
+        # -------------------------w9---------------------
         ######  ASC
 
-        # -------- w11
-        # 11.ASC y Divulgación
-        var_w11 = 0 
+        # -------------------------w10--------------------
+        # 10.ASC y Divulgación
+        var_w10 = 0 
 
         # productos de interes social
         try:
@@ -1467,9 +1472,9 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
 
                 eh=DBEH['ASC_P']['PASC_P']['PASC_FOR_P_TABLE']
 
-                format_df(df, '11.ASC y Divulgación', var_w11, writer,eh)
+                format_df(df, '10.ASC y Divulgación', var_w10, writer,eh)
 
-                var_w11 += df.shape[0] + 3
+                var_w10 += df.shape[0] + 3
 
             else:
                 raise(KeyError)
@@ -1486,9 +1491,9 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
 
                 eh=DBEH['ASC_P']['PASC_P']['PASC_TRA_P_TABLE']
 
-                format_df(df, '11.ASC y Divulgación', var_w11, writer,eh)
+                format_df(df, '10.ASC y Divulgación', var_w10, writer,eh)
 
-                var_w11 += df.shape[0] + 3
+                var_w10 += df.shape[0] + 3
             else:
                 raise(KeyError)
 
@@ -1504,9 +1509,9 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
 
                 eh=DBEH['ASC_P']['PASC_P']['PASC_GEN_P_TABLE']
 
-                format_df(df, '11.ASC y Divulgación', var_w11, writer,eh)
+                format_df(df, '10.ASC y Divulgación', var_w10, writer,eh)
 
-                var_w11 += df.shape[0] + 3
+                var_w10 += df.shape[0] + 3
             else:
                 raise(KeyError)
 
@@ -1522,9 +1527,9 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
 
                 eh=DBEH['ASC_P']['PASC_P']['PASC_CAD_P_TABLE']
 
-                format_df(df, '11.ASC y Divulgación', var_w11, writer,eh)
+                format_df(df, '10.ASC y Divulgación', var_w10, writer,eh)
 
-                var_w11 += df.shape[0] + 3
+                var_w10 += df.shape[0] + 3
             else:
                 raise(KeyError)
 
@@ -1541,9 +1546,9 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
 
                 eh=DBEH['ASC_P']['DC_P']['DC_CD_P_TABLE']
 
-                format_df(df, '11.ASC y Divulgación', var_w11, writer,eh)
+                format_df(df, '10.ASC y Divulgación', var_w10, writer,eh)
 
-                var_w11 += df.shape[0] + 3
+                var_w10 += df.shape[0] + 3
             else:
                 raise(KeyError)
 
@@ -1559,9 +1564,9 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
 
                 eh=DBEH['ASC_P']['DC_P']['DC_CON_P_TABLE']
 
-                format_df(df, '11.ASC y Divulgación', var_w11, writer,eh)
+                format_df(df, '10.ASC y Divulgación', var_w10, writer,eh)
 
-                var_w11 += df.shape[0] + 3
+                var_w10 += df.shape[0] + 3
             else:
                 raise(KeyError)
 
@@ -1577,9 +1582,9 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
 
                 eh=DBEH['ASC_P']['DC_P']['DC_TRA_P_TABLE']
 
-                format_df(df, '11.ASC y Divulgación', var_w11, writer,eh)
+                format_df(df, '10.ASC y Divulgación', var_w10, writer,eh)
 
-                var_w11 += df.shape[0] + 3
+                var_w10 += df.shape[0] + 3
             else:
                 raise(KeyError)
 
@@ -1595,9 +1600,9 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
 
                 eh=DBEH['ASC_P']['DC_P']['DC_DES_P_TABLE']
 
-                format_df(df, '11.ASC y Divulgación', var_w11, writer,eh)
+                format_df(df, '10.ASC y Divulgación', var_w10, writer,eh)
 
-                var_w11 += df.shape[0] + 3
+                var_w10 += df.shape[0] + 3
             else:
                 raise(KeyError)
 
@@ -1605,12 +1610,12 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
 
             pass
 
-        # --- --- --- -- w11 -- -- -- -- -- -- --
+        # --- --- --- -- w10 -- -- -- -- -- -- --
 
-        # ---------------w12--------------------
+        # ---------------w11--------------------
 
         # FRH
-        var_w12 = 0
+        var_w11 = 0
 
         # tesis doctorado
         try:
@@ -1620,9 +1625,9 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
 
             eh=DBEH['FRH_P']['TES_DOC_P']['TD_P_TABLE']
 
-            format_df(df, '12.Formación y programas', var_w12, writer, eh,veh=2)
+            format_df(df, '11.Formación y programas', var_w11, writer, eh,veh=2)
 
-            var_w12 += df.shape[0] + 3
+            var_w11 += df.shape[0] + 3
 
         except KeyError as e:
 
@@ -1636,13 +1641,14 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
 
             eh=DBEH['FRH_P']['TES_MAST_P']['TM_P_TABLE']
 
-            format_df(df, '12.Formación y programas',var_w12, writer,eh,veh=2)
+            format_df(df, '11.Formación y programas',var_w11, writer,eh,veh=2)
 
-            var_w12 += df.shape[0] + 3
+            var_w11 += df.shape[0] + 3
 
         except KeyError as e:
 
             pass
+
         # tesis pregrado
         try:
             df=rename_col(clean_df(DBG['FRH_P']['TES_PREG_P']),'Título','Título del trabajo de grado de pregrado') ### veh = 2
@@ -1651,9 +1657,9 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
 
             eh=DBEH['FRH_P']['TES_PREG_P']['TP_P_TABLE']
 
-            format_df(df, '12.Formación y programas',var_w12, writer,eh,veh = 2)
+            format_df(df, '11.Formación y programas',var_w11, writer,eh,veh = 2)
 
-            var_w12 += df.shape[0] + 3
+            var_w11 += df.shape[0] + 3
 
         except KeyError as e:
 
@@ -1661,13 +1667,13 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
 
         # asesoria programa academico
         try:
-            df=rename_col(clean_df(DBG['FRH_P']['ASE_PRG_ACA_P']),'Tipo','Nombre programa academico creado') 
+            df=rename_col(clean_df(DBG['FRH_P']['ASE_PRG_ACA_P']),'Tipo','Nombre programa académico creado') 
 
             eh=DBEH['FRH_P']['ASE_PRG_ACA_P']['APGA_P_TABLE']
 
-            format_df(df, '12.Formación y programas', var_w12, writer,eh)
+            format_df(df, '11.Formación y programas', var_w11, writer,eh)
 
-            var_w12 += df.shape[0] + 3
+            var_w11 += df.shape[0] + 3
 
         except KeyError as e:
 
@@ -1679,9 +1685,9 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
 
             eh=DBEH['FRH_P']['ASE_CRE_CUR_P']['ACC_P_TABLE']
 
-            format_df(df, '12.Formación y programas', var_w12, writer,eh)
+            format_df(df, '11.Formación y programas', var_w11, writer,eh)
 
-            var_w12 += df.shape[0] + 3
+            var_w11 += df.shape[0] + 3
 
         except KeyError as e:
 
@@ -1693,14 +1699,75 @@ def to_excel(DB,dfg,DIR='InstituLAC'):
 
             eh=DBEH['FRH_P']['ASE_PRG_ONDAS_P']['APO_P_TABLE']
 
-            format_df(df, '12.Formación y programas', var_w12, writer,eh)
+            format_df(df, '11.Formación y programas', var_w11, writer,eh)
+
+            var_w11 += df.shape[0] + 3
+
+        except KeyError as e:
+
+            pass
+        #----------------w11---------------------------
+
+        #----------------w12---------------------------
+        # Proyectos
+        var_w12 = 0
+        
+        # Proyecto de investigación y desarrollo
+        try:
+            df=rename_col(clean_df(DBG['FRH_P']['PROY_INV_DES_P']),'Nombre','Proyecto de investigación y desarrollo')
+
+            eh=DBEH['FRH_P']['PROY_INV_DES_P']['PID_P_TABLE']
+
+            format_df(df, '12.Proyectos', var_w12, writer,eh)
 
             var_w12 += df.shape[0] + 3
 
         except KeyError as e:
 
             pass
-        #----------------w12---------------------------
+
+        # Proyecto de investigación + creación
+        try:
+            df=rename_col(clean_df(DBG['FRH_P']['PROY_INV_CRE_P']),'Nombre','Proyecto de investigación + creación')
+
+            eh=DBEH['FRH_P']['PROY_INV_CRE_P']['INV_CRE_P_TABLE']
+
+            format_df(df, '12.Proyectos', var_w12, writer,eh)
+
+            var_w12 += df.shape[0] + 3
+
+        except KeyError as e:
+
+            pass
+
+        # Proyecto de investigación, desarrollo e innovación (ID+I)
+        try:
+            df=rename_col(clean_df(DBG['FRH_P']['PROY_INV_DES_INN_P']),'Nombre','Proyecto de investigación, desarrollo e innovación (ID+I)')
+
+            eh=DBEH['FRH_P']['PROY_INV_DES_INN_P']['PF_P_TABLE']
+
+            format_df(df, '12.Proyectos', var_w12, writer,eh)
+
+            var_w12 += df.shape[0] + 3
+
+        except KeyError as e:
+
+            pass
+
+        # Proyecto de extensión y de responsabilidad social en CTeI
+        try:
+            df=rename_col(clean_df(DBG['FRH_P']['PROY_INV_RESP_SOC_P']),'Nombre','Proyecto de extensión y de responsabilidad social en CTeI')
+
+            eh=DBEH['FRH_P']['PROY_INV_RESP_SOC_P']['PE_P_TABLE']
+
+            format_df(df, '12.Proyectos', var_w12, writer,eh)
+
+            var_w12 += df.shape[0] + 3
+
+        except KeyError as e:
+
+            pass
+
         writer.close()
 
 # HERE 
