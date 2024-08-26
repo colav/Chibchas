@@ -94,10 +94,10 @@ DBEH = {
               'ASE_PRG_ACA_P': {'APGA_P_TABLE':['Agregue las evidencias verificadas al repositorio digital y genere un hipervínculo en este campo','¿El producto cumple con los requisitos para ser avalado?']},
               'ASE_CRE_CUR_P': {'ACC_P_TABLE':['Agregue las evidencias verificadas al repositorio digital y genere un hipervínculo en este campo','¿El producto cumple con los requisitos para ser avalado?']},
               'ASE_PRG_ONDAS_P': {'APO_P_TABLE':['Agregue las evidencias verificadas al repositorio digital y genere un hipervínculo en este campo','¿El producto cumple con los requisitos para ser avalado?']},
-              'PROY_INV_DES_P':{'PID_P_TABLE':['Agregue las evidencias verificadas al repositorio digital y genere un hipervínculo en este campo','¿El producto cumple con los requisitos para ser avalado?']},
-              'PROY_INV_CRE_P':{'INV_CRE_P_TABLE':['Agregue las evidencias verificadas al repositorio digital y genere un hipervínculo en este campo','¿El producto cumple con los requisitos para ser avalado?']},
-              'PROY_INV_DES_INN_P':{'PF_P_TABLE':['Agregue las evidencias verificadas al repositorio digital y genere un hipervínculo en este campo','¿El producto cumple con los requisitos para ser avalado?']},
-              'PROY_INV_RESP_SOC_P':{'PE_P_TABLE':['Agregue las evidencias verificadas al repositorio digital y genere un hipervínculo en este campo','¿El producto cumple con los requisitos para ser avalado?']}
+              'PROY_INV_DES_P':{'PID_P_TABLE':['Código SIIU o código en el Centro','Si el proyecto no está en SIIU, agregue las evidencias verificadas al repositorio digital y genere un hipervínculo en este campo','¿El producto cumple con los requisitos para ser avalado?']},
+              'PROY_INV_CRE_P':{'INV_CRE_P_TABLE':['Código SIIU o código en el Centro','Si el proyecto no está en SIIU, agregue las evidencias verificadas al repositorio digital y genere un hipervínculo en este campo','¿El producto cumple con los requisitos para ser avalado?']},
+              'PROY_INV_DES_INN_P':{'PF_P_TABLE':['Código SIIU o código en el Centro','Si el proyecto no está en SIIU, agregue las evidencias verificadas al repositorio digital y genere un hipervínculo en este campo','¿El producto cumple con los requisitos para ser avalado?']},
+              'PROY_INV_RESP_SOC_P':{'PE_P_TABLE':['Código SIIU o código en el Centro','Si el proyecto no está en SIIU, agregue las evidencias verificadas al repositorio digital y genere un hipervínculo en este campo','¿El producto cumple con los requisitos para ser avalado?']}
               }
 }
 
@@ -307,7 +307,6 @@ def format_df(df, sheet_name, start_row, writer,eh, veh = None):
         v_range = d.get(str(end+len(eh)-2)) + str(start_row +3) + ':' + d.get(str(end+len(eh)-2)) + str(df.shape[0] + start_row +2)
         worksheet.data_validation(v_range,{'validate': 'list',
                                   'source': ['Sí', 'No']})
-        
     if veh == 3:
         v_range = d.get(str(end+len(eh)-2)) + str(start_row +3) + ':' + d.get(str(end+len(eh)-3)) + str(df.shape[0] + start_row +2)
         worksheet.data_validation(v_range,{'validate': 'list',
